@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private System</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Login Page */
+#loginPage {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #f2f2f2;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#mainPage, #anasPage {
+    display: none;
+    height: 100vh;
+    background: white;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.main-btn {
+    width: 200px;
+    margin: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+.red { background: red; }
+.blue { background: blue; }
+.yellow { background: gold; color: black; }
+
+.money-container {
+    display: flex;
+    align-items: center;
+}
+
+.mad-label {
+    margin-left: 5px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Login -->
+<div id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="User name">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkLogin()">Login</button>
+</div>
+
+<!-- Main Page -->
+<div id="mainPage">
+    <button class="main-btn red" onclick="openAnas()">Anas</button>
+    <button class="main-btn blue">Oussama</button>
+    <button class="main-btn yellow">Amine</button>
+</div>
+
+<!-- Anas Page -->
+<div id="anasPage">
+    <h2>Enter Payment</h2>
+
+    <div class="money-container">
+        <input type="number" id="amount" placeholder="Amount" min="0">
+        <span class="mad-label">MAD</span>
+    </div>
+
+    <input type="text" id="description" placeholder="Description (max 60 characters)" maxlength="60">
+
+    <br><br>
+    <button onclick="sendData()">Send</button>
+    <br><br>
+    <button onclick="goBack()">Back</button>
+</div>
+
+<script>
+let currentUser = "";
+
+const allowedUsers = [
+"user1","user2","user3","user4","user5",
+"user6","user7","user8","user9","user10"
+];
+
+function checkLogin() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (allowedUsers.includes(username) && password === "12341234") {
+        currentUser = username;
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("mainPage").style.display = "flex";
+    } else {
+        alert("Invalid username or password");
+    }
+}
+
+function openAnas() {
+    document.getElementById("mainPage").style.display = "none";
+    document.getElementById("anasPage").style.display = "flex";
+}
+
+function goBack() {
+    document.getElementById("anasPage").style.display = "none";
+    document.getElementById("mainPage").style.display = "flex";
+}
+
+function sendData() {
+    const amount = document.getElementById("amount").value;
+    const description = document.getElementById("description").value;
+
+    if (amount === "" || description === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const data = {
+        user: currentUser,
+        amount: amount + " MAD",
+        description: description,
+        date: new Date().toLocaleString()
+    };
+
+    let allData = JSON.parse(localStorage.getItem("payments")) || [];
+    allData.push(data);
+    localStorage.setItem("payments", JSON.stringify(allData));
+
+    window.location.href = "admin.html";
+}
+</script>
+
+</body>
+</html>
