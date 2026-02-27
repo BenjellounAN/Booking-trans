@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Page</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f2f2f2;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background: black;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Admin - Payments</h2>
+
+<table>
+<thead>
+<tr>
+<th>User</th>
+<th>Amount</th>
+<th>Description</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody id="dataTable"></tbody>
+</table>
+
+<script>
+const payments = JSON.parse(localStorage.getItem("payments")) || [];
+const table = document.getElementById("dataTable");
+
+payments.forEach(item => {
+    let row = `
+        <tr>
+            <td>${item.user}</td>
+            <td>${item.amount}</td>
+            <td>${item.description}</td>
+            <td>${item.date}</td>
+        </tr>
+    `;
+    table.innerHTML += row;
+});
+</script>
+
+</body>
+</html>
