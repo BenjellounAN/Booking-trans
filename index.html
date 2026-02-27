@@ -71,7 +71,7 @@ button {
 
 <!-- Login -->
 <div id="loginPage">
-    <h2>Login</h2>
+    <h2>User Login</h2>
     <input type="text" id="username" placeholder="User name">
     <input type="password" id="password" placeholder="Password">
     <button onclick="checkLogin()">Login</button>
@@ -152,7 +152,10 @@ function sendData() {
     allData.push(data);
     localStorage.setItem("payments", JSON.stringify(allData));
 
-    window.location.href = "admin.html";
+    alert("Good Job ✅");
+
+    document.getElementById("amount").value = "";
+    document.getElementById("description").value = "";
 }
 </script>
 
