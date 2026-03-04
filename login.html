@@ -2,88 +2,249 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Private System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Admin Login</title>
+
 <style>
-body {
-    font-family: Arial;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+
+* {
+    box-sizing: border-box;
     margin: 0;
+    padding: 0;
 }
-.login-box {
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-container {
     background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1 {
     text-align: center;
-    width: 300px;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    font-size: 2em;
 }
-.login-box h2 {
+
+.subtitle {
+    text-align: center;
+    color: #666;
     margin-bottom: 30px;
-    color: #333;
+    font-size: 0.95em;
 }
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
 input {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1em;
+    transition: all 0.3s;
+    outline: none;
 }
-button {
+
+input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+.password-container {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 1.2em;
+    user-select: none;
+}
+
+.login-btn {
     width: 100%;
-    padding: 12px;
-    background: #4CAF50;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
     cursor: pointer;
-}
-button:hover {
-    background: #45a049;
-}
-.error {
-    color: red;
+    transition: all 0.3s;
     margin-top: 10px;
-    display: none;
+    box-shadow: 0 10px 20px rgba(102,126,234,0.3);
 }
-.note {
-    margin-top: 20px;
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(102,126,234,0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.9em;
+    margin-top: 15px;
+    text-align: center;
+    min-height: 20px;
+}
+
+.security-note {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
     color: #666;
-    font-size: 14px;
+    font-size: 0.85em;
 }
+
+.security-note i {
+    font-style: normal;
+    color: #667eea;
+    font-weight: 600;
+}
+
 </style>
 </head>
 <body>
 
-<div class="login-box">
-    <h2>🔐 User Login</h2>
-    <input type="text" id="username" placeholder="Username" autocomplete="off">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div class="error" id="errorMsg">Wrong username or password</div>
-    <div class="note">Use: any username / 12341234</div>
+<div class="login-container">
+    <h1>🔐 Admin Login</h1>
+    <div class="subtitle">Please enter your credentials to access the admin panel</div>
+    
+    <div class="input-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter username" autocomplete="off">
+    </div>
+    
+    <div class="input-group">
+        <label>Password</label>
+        <div class="password-container">
+            <input type="password" id="password" placeholder="Enter password">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+    </div>
+    
+    <button class="login-btn" onclick="login()">Login to Dashboard</button>
+    
+    <div class="error-message" id="errorMessage"></div>
+    
+    <div class="security-note">
+        <i>⚡</i> Authorized personnel only <i>⚡</i>
+    </div>
 </div>
 
 <script>
-function login() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
+// Hardcoded credentials (you can change these)
+const VALID_USERNAME = "admin";
+const VALID_PASSWORD = "admin123";
+
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.querySelector('.toggle-password');
     
-    if (password === "12341234") {
-        sessionStorage.setItem("currentUser", username || "user");
-        window.location.href = "index.html";
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '🔒';
     } else {
-        document.getElementById("errorMsg").style.display = "block";
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
     }
 }
 
+function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Clear previous error
+    errorMessage.textContent = '';
+    
+    // Validate inputs
+    if (!username || !password) {
+        errorMessage.textContent = 'Please enter both username and password';
+        return;
+    }
+    
+    // Check credentials
+    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+        // Set login flag in sessionStorage
+        sessionStorage.setItem('isAuthenticated', 'true');
+        
+        // Redirect to admin panel
+        window.location.href = 'admin.html';
+    } else {
+        errorMessage.textContent = 'Invalid username or password';
+        
+        // Shake animation for wrong credentials
+        const container = document.querySelector('.login-container');
+        container.style.animation = 'shake 0.5s ease';
+        setTimeout(() => {
+            container.style.animation = 'slideUp 0.5s ease';
+        }, 500);
+    }
+}
+
+// Add shake animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);
+
+// Check if already logged in
+if (sessionStorage.getItem('isAuthenticated') === 'true') {
+    window.location.href = 'admin.html';
+}
+
+// Allow Enter key to submit
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         login();
