@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System orders</title>
+<title>System Orders</title>
 
 <style>
 
@@ -11,6 +11,22 @@ body{
 font-family:Arial;
 padding:20px;
 }
+
+/* زر admin */
+
+#adminBtn{
+position:absolute;
+top:20px;
+right:20px;
+background:black;
+color:white;
+padding:10px 20px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* الازرار */
 
 button{
 padding:12px 25px;
@@ -45,6 +61,8 @@ display:block;
 
 <body>
 
+<button id="adminBtn">Admin</button>
+
 <h2>Choose name</h2>
 
 <div id="step1">
@@ -65,6 +83,10 @@ display:block;
 <button id="houssam" style="background:brown;">Houssam</button>
 
 <button id="zaki" style="background:green;">Zaki</button>
+
+<br>
+
+<button id="backToFirst" style="background:gray;">Back</button>
 
 </div>
 
@@ -90,6 +112,14 @@ display:block;
 
 let mainName=""
 let secondName=""
+
+/* زر الادمن */
+
+document.getElementById("adminBtn").onclick=function(){
+
+window.location.href="admin.html"
+
+}
 
 /* step1 */
 
@@ -120,7 +150,16 @@ secondName="Zaki"
 goStep3()
 }
 
-/* back */
+/* رجوع للخطوة الاولى */
+
+document.getElementById("backToFirst").onclick=function(){
+
+document.getElementById("step2").style.display="none"
+document.getElementById("step1").style.display="block"
+
+}
+
+/* رجوع للخطوة الثانية */
 
 document.getElementById("back").onclick=function(){
 
