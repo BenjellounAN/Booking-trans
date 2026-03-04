@@ -6,7 +6,7 @@
 <title>Admin Panel - Payment Records</title>
 
 <style>
-
+/* نفس التنسيقات الموجودة */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -57,6 +57,11 @@ gap: 5px;
 .refresh-btn:active{
 transform:scale(0.95);
 background:#1976d2;
+}
+
+.refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .clear-all-btn {
@@ -166,6 +171,11 @@ background:#e8f0fe;
     transform: scale(0.9);
 }
 
+.delete-row-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Summary Section */
 .summary{
 display: grid;
@@ -225,6 +235,52 @@ font-size:1.1em;
 font-size:3.5em;
 margin-bottom:15px;
 opacity:0.5;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2196f3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    background: white;
+    padding: 20px 40px;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2em;
+    color: #333;
 }
 
 /* Confirmation Dialog */
@@ -348,6 +404,22 @@ opacity:0.5;
     font-weight: 500;
 }
 
+.error-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc3545;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(220,53,69,0.4);
+    z-index: 1001;
+    display: none;
+    animation: slideUp 0.3s ease;
+    font-weight: 500;
+}
+
 @keyframes slideUp {
     from {
         transform: translate(-50%, 20px);
@@ -435,7 +507,7 @@ opacity:0.5;
 
 <!-- Header Actions -->
 <div class="header-actions">
-    <button class="refresh-btn" onclick="loadData()">
+    <button class="refresh-btn" onclick="loadData()" id="refreshBtn">
         <span>🔄</span> Refresh Data
     </button>
     
@@ -508,211 +580,288 @@ opacity:0.5;
     </div>
 </div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <span>Loading...</span>
+    </div>
+</div>
+
 <!-- Success Toast -->
 <div class="success-toast" id="successToast">✅ Operation completed successfully!</div>
 
-<script>
-if(sessionStorage.getItem("adminAccess")!=="true"){
-window.location.href="login.html"
+<!-- Error Toast -->
+<div class="error-toast" id="errorToast">❌ An error occurred!</div>
+
+<!-- Import Firebase and Script -->
+<script type="module">
+import { db, paymentsCollection, getDocs, deleteDoc, doc, query, orderBy, writeBatch } from './firebase-config.js';
+
+// Check admin access
+if(sessionStorage.getItem("adminAccess") !== "true"){
+    window.location.href = "login.html"
 }
 
-
-let currentDeleteIndex = null;
+let currentDeleteId = null;
 let paymentsData = [];
 
-function loadData() {
-    
-    // Get data from localStorage
-    paymentsData = JSON.parse(localStorage.getItem("payments")) || []
-    
-    let table = document.getElementById("tableData")
-    
-    // Clear table
-    table.innerHTML = ""
-    
-    // Initialize totals for all persons
-    let totals = {
-        anas: 0,
-        oussama: 0,
-        amine: 0,
-        houssam: 0,
-        zaki: 0
-    }
-    
-    // Enable/disable clear all button
+// Show loading overlay
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('refreshBtn').disabled = true;
+    document.getElementById('clearAllBtn').disabled = true;
+}
+
+// Hide loading overlay
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    document.getElementById('refreshBtn').disabled = false;
+    // Enable/disable clear all button based on data
     const clearAllBtn = document.getElementById('clearAllBtn');
     if (paymentsData.length === 0) {
         clearAllBtn.disabled = true;
     } else {
         clearAllBtn.disabled = false;
     }
+}
+
+// Show success message
+function showSuccess(message) {
+    const toast = document.getElementById('successToast');
+    toast.textContent = '✅ ' + message;
+    toast.style.display = 'block';
     
-    if(paymentsData.length === 0) {
-        // Show empty state
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" style="padding: 0;">
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <h3>No Payment Records</h3>
-                        <p>There are no payment records yet. Add some from the main app.</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-    } else {
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 2000);
+}
+
+// Show error message
+function showError(message) {
+    const toast = document.getElementById('errorToast');
+    toast.textContent = '❌ ' + message;
+    toast.style.display = 'block';
+    
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+
+// Load data from Firebase
+async function loadData() {
+    showLoading();
+    
+    try {
+        // Get data from Firestore, ordered by date descending
+        const q = query(paymentsCollection, orderBy("date", "desc"));
+        const querySnapshot = await getDocs(q);
         
-        // Display data in table (show newest first)
-        paymentsData.slice().reverse().forEach((item, displayIndex) => {
-            
-            // Extract amount (remove "MAD" and parse)
-            let amountStr = item.amount.replace(" MAD", "")
-            let amount = parseFloat(amountStr)
-            let half = amount / 2
-            
-            // Get actual index in original array
-            let actualIndex = paymentsData.length - 1 - displayIndex;
-            
-            // Get person class for styling
-            let mainClass = getPersonClass(item.main)
-            let partnerClass = getPersonClass(item.partner)
-            
-            let row = document.createElement("tr")
-            
-            row.innerHTML = `
-                <td><strong>#${displayIndex + 1}</strong></td>
-                <td><span class="person-badge ${mainClass}">${item.main || 'N/A'}</span></td>
-                <td><span class="person-badge ${partnerClass}">${item.partner || 'N/A'}</span></td>
-                <td><strong>${amount.toFixed(2)} MAD</strong></td>
-                <td>${half.toFixed(2)} MAD</td>
-                <td>${item.description || '-'}</td>
-                <td>${item.date || 'N/A'}</td>
-                <td>
-                    <button class="delete-row-btn" onclick="showDeleteSingleDialog(${actualIndex})" title="Delete this record">
-                        🗑️
-                    </button>
-                </td>
-            `
-            
-            table.appendChild(row)
-            
-            // Calculate totals for all persons
-            if(item.main === "Anas") totals.anas += half
-            if(item.main === "Oussama") totals.oussama += half
-            if(item.main === "Amine") totals.amine += half
-            if(item.partner === "Houssam") totals.houssam += half
-            if(item.partner === "Zaki") totals.zaki += half
-        })
+        paymentsData = [];
+        querySnapshot.forEach((doc) => {
+            paymentsData.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        let table = document.getElementById("tableData");
+        table.innerHTML = "";
+        
+        // Initialize totals
+        let totals = {
+            anas: 0,
+            oussama: 0,
+            amine: 0,
+            houssam: 0,
+            zaki: 0
+        };
+        
+        if(paymentsData.length === 0) {
+            // Show empty state
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" style="padding: 0;">
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>No Payment Records</h3>
+                            <p>There are no payment records yet. Add some from the main app.</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            // Display data in table
+            paymentsData.forEach((item, index) => {
+                
+                // Extract amount
+                let amountStr = item.amount.replace(" MAD", "");
+                let amount = parseFloat(amountStr);
+                let half = amount / 2;
+                
+                // Get person class for styling
+                let mainClass = getPersonClass(item.main);
+                let partnerClass = getPersonClass(item.partner);
+                
+                let row = document.createElement("tr");
+                
+                row.innerHTML = `
+                    <td><strong>#${index + 1}</strong></td>
+                    <td><span class="person-badge ${mainClass}">${item.main || 'N/A'}</span></td>
+                    <td><span class="person-badge ${partnerClass}">${item.partner || 'N/A'}</span></td>
+                    <td><strong>${amount.toFixed(2)} MAD</strong></td>
+                    <td>${half.toFixed(2)} MAD</td>
+                    <td>${item.description || '-'}</td>
+                    <td>${item.date || 'N/A'}</td>
+                    <td>
+                        <button class="delete-row-btn" onclick="showDeleteSingleDialog('${item.id}')" title="Delete this record">
+                            🗑️
+                        </button>
+                    </td>
+                `;
+                
+                table.appendChild(row);
+                
+                // Calculate totals
+                if(item.main === "Anas") totals.anas += half;
+                if(item.main === "Oussama") totals.oussama += half;
+                if(item.main === "Amine") totals.amine += half;
+                if(item.partner === "Houssam") totals.houssam += half;
+                if(item.partner === "Zaki") totals.zaki += half;
+            });
+        }
+        
+        // Update totals
+        document.getElementById("anasTotal").innerText = totals.anas.toFixed(2);
+        document.getElementById("oussamaTotal").innerText = totals.oussama.toFixed(2);
+        document.getElementById("amineTotal").innerText = totals.amine.toFixed(2);
+        document.getElementById("houssamTotal").innerText = totals.houssam.toFixed(2);
+        document.getElementById("zakiTotal").innerText = totals.zaki.toFixed(2);
+        
+    } catch (error) {
+        console.error("Error loading data:", error);
+        showError("Failed to load data from database");
+    } finally {
+        hideLoading();
     }
-    
-    // Update totals in UI with 2 decimal places
-    document.getElementById("anasTotal").innerText = totals.anas.toFixed(2)
-    document.getElementById("oussamaTotal").innerText = totals.oussama.toFixed(2)
-    document.getElementById("amineTotal").innerText = totals.amine.toFixed(2)
-    document.getElementById("houssamTotal").innerText = totals.houssam.toFixed(2)
-    document.getElementById("zakiTotal").innerText = totals.zaki.toFixed(2)
-    
 }
 
 // Helper function to get person class for styling
 function getPersonClass(person) {
     switch(person) {
-        case "Anas": return "person-anas"
-        case "Oussama": return "person-ous"
-        case "Amine": return "person-amine"
-        case "Houssam": return "person-houssam"
-        case "Zaki": return "person-zaki"
-        default: return ""
+        case "Anas": return "person-anas";
+        case "Oussama": return "person-ous";
+        case "Amine": return "person-amine";
+        case "Houssam": return "person-houssam";
+        case "Zaki": return "person-zaki";
+        default: return "";
     }
 }
 
 // Show delete single dialog
-function showDeleteSingleDialog(index) {
-    currentDeleteIndex = index
-    document.getElementById('dialogOverlay').classList.add('active')
-    document.getElementById('deleteSingleDialog').classList.add('active')
+function showDeleteSingleDialog(id) {
+    currentDeleteId = id;
+    document.getElementById('dialogOverlay').classList.add('active');
+    document.getElementById('deleteSingleDialog').classList.add('active');
     
     // Set up confirm button
     document.getElementById('confirmDeleteBtn').onclick = function() {
-        deleteSingleRecord(currentDeleteIndex)
-    }
+        deleteSingleRecord(currentDeleteId);
+    };
 }
 
 // Hide delete single dialog
 function hideDeleteSingleDialog() {
-    document.getElementById('dialogOverlay').classList.remove('active')
-    document.getElementById('deleteSingleDialog').classList.remove('active')
-    currentDeleteIndex = null
+    document.getElementById('dialogOverlay').classList.remove('active');
+    document.getElementById('deleteSingleDialog').classList.remove('active');
+    currentDeleteId = null;
 }
 
-// Delete single record
-function deleteSingleRecord(index) {
-    let data = JSON.parse(localStorage.getItem("payments")) || []
+// Delete single record from Firebase
+async function deleteSingleRecord(id) {
+    if (!id) return;
     
-    if(index >= 0 && index < data.length) {
-        data.splice(index, 1)
-        localStorage.setItem("payments", JSON.stringify(data))
+    showLoading();
+    hideDeleteSingleDialog();
+    
+    try {
+        // Delete document from Firestore
+        await deleteDoc(doc(db, "payments", id));
         
-        // Show success message
-        showToast('Record deleted successfully!')
+        showSuccess('Record deleted successfully!');
+        await loadData(); // Reload data
         
-        // Reload data
-        loadData()
+    } catch (error) {
+        console.error("Error deleting record:", error);
+        showError("Failed to delete record");
+        hideLoading();
     }
-    
-    hideDeleteSingleDialog()
 }
 
 // Show clear all dialog
 function showClearAllDialog() {
-    let data = JSON.parse(localStorage.getItem("payments")) || []
-    
-    if(data.length === 0) {
-        showToast('No records to delete!')
-        return
+    if(paymentsData.length === 0) {
+        showError('No records to delete!');
+        return;
     }
     
-    document.getElementById('dialogOverlay').classList.add('active')
-    document.getElementById('clearAllDialog').classList.add('active')
+    document.getElementById('dialogOverlay').classList.add('active');
+    document.getElementById('clearAllDialog').classList.add('active');
 }
 
 // Hide clear all dialog
 function hideClearAllDialog() {
-    document.getElementById('dialogOverlay').classList.remove('active')
-    document.getElementById('clearAllDialog').classList.remove('active')
+    document.getElementById('dialogOverlay').classList.remove('active');
+    document.getElementById('clearAllDialog').classList.remove('active');
 }
 
-// Clear all records
-function clearAllRecords() {
-    localStorage.removeItem("payments")
-    loadData()
-    hideClearAllDialog()
-    showToast('All records cleared successfully!')
+// Clear all records from Firebase
+async function clearAllRecords() {
+    showLoading();
+    hideClearAllDialog();
+    
+    try {
+        // Use batch write to delete all documents
+        const batch = writeBatch(db);
+        
+        paymentsData.forEach((item) => {
+            const docRef = doc(db, "payments", item.id);
+            batch.delete(docRef);
+        });
+        
+        await batch.commit();
+        
+        showSuccess('All records cleared successfully!');
+        await loadData(); // Reload data
+        
+    } catch (error) {
+        console.error("Error clearing records:", error);
+        showError("Failed to clear records");
+        hideLoading();
+    }
 }
 
 // Hide all dialogs
 function hideAllDialogs() {
-    document.getElementById('dialogOverlay').classList.remove('active')
-    document.getElementById('deleteSingleDialog').classList.remove('active')
-    document.getElementById('clearAllDialog').classList.remove('active')
-}
-
-// Show toast message
-function showToast(message) {
-    const toast = document.getElementById('successToast')
-    toast.textContent = '✅ ' + message
-    toast.style.display = 'block'
-    
-    setTimeout(() => {
-        toast.style.display = 'none'
-    }, 2000)
+    document.getElementById('dialogOverlay').classList.remove('active');
+    document.getElementById('deleteSingleDialog').classList.remove('active');
+    document.getElementById('clearAllDialog').classList.remove('active');
 }
 
 // Auto refresh every 30 seconds
-setInterval(loadData, 30000)
+setInterval(loadData, 30000);
 
 // Load data on page load
-window.onload = loadData
+window.onload = loadData;
+
+// Make functions globally available
+window.loadData = loadData;
+window.showDeleteSingleDialog = showDeleteSingleDialog;
+window.hideDeleteSingleDialog = hideDeleteSingleDialog;
+window.showClearAllDialog = showClearAllDialog;
+window.hideClearAllDialog = hideClearAllDialog;
+window.clearAllRecords = clearAllRecords;
+window.hideAllDialogs = hideAllDialogs;
 
 </script>
 
