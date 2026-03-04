@@ -100,7 +100,26 @@ button {
 <button onclick="backChoose()">Back</button>
 </div>
 
+<!-- إضافة Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+
 <script>
+// تكوين Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCh8ssk6K7_LXDPpG3X85Z7VlUwDa_0_Og",
+  authDomain: "deliverymarrakech.firebaseapp.com",
+  projectId: "deliverymarrakech",
+  storageBucket: "deliverymarrakech.firebasestorage.app",
+  messagingSenderId: "543072772322",
+  appId: "1:543072772322:web:468d0c047e06c86bde7ebb",
+  measurementId: "G-YMXBJFJ9N8"
+};
+
+// تهيئة Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 let currentUser = "";
 let mainPerson = "";
 let selectedPerson = "";
@@ -138,7 +157,8 @@ function backChoose() {
     document.getElementById("choosePage").style.display = "flex";
 }
 
-function sendData() {
+// إرسال البيانات إلى Firebase
+async function sendData() {
     const amount = document.getElementById("amount").value;
     const description = document.getElementById("description").value;
     
@@ -147,22 +167,30 @@ function sendData() {
         return;
     }
     
-    // حفظ في localStorage للتجربة
-    let payments = JSON.parse(localStorage.getItem("payments")) || [];
-    payments.push({
+    // تجهيز البيانات
+    const paymentData = {
         main: mainPerson,
         partner: selectedPerson,
         amount: amount + " MAD",
         description: description,
         date: new Date().toLocaleString(),
-        user: currentUser
-    });
-    localStorage.setItem("payments", JSON.stringify(payments));
+        user: currentUser,
+        timestamp: new Date().toISOString()
+    };
     
-    alert("Saved! (locally)");
-    document.getElementById("amount").value = "";
-    document.getElementById("description").value = "";
-    backChoose();
+    try {
+        // إرسال إلى Firebase
+        await db.collection("payments").add(paymentData);
+        
+        alert("✅ Saved to database successfully!");
+        document.getElementById("amount").value = "";
+        document.getElementById("description").value = "";
+        backChoose();
+        
+    } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Error saving to database. Check console for details.");
+    }
 }
 </script>
 </body>
