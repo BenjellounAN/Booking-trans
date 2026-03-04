@@ -3,63 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orders Page</title>
+<title>Order Page</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-  }
-  #step2, #step3 {
-    margin-top: 20px;
-  }
-  input, textarea {
-    width: 300px;
-    padding: 8px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    display: block;
-  }
+  body { font-family: Arial; padding: 20px; }
+  button { padding:10px 20px; margin:10px; border:none; color:white; cursor:pointer; font-size:16px; border-radius:5px; }
+  #step2, #step3 { margin-top:20px; display:none; }
+  input, textarea { width:300px; padding:8px; margin-bottom:15px; display:block; }
 </style>
 </head>
 <body>
 
 <h2>Step 1: Choose a main person</h2>
 <div id="step1">
-  <button style="background-color:red;" data-name="Anas">Anas</button>
-  <button style="background-color:blue;" data-name="Oussama">Oussama</button>
-  <button style="background-color:yellow;color:black;" data-name="Amine">Amine</button>
+  <button id="btnAnas" style="background-color:red;">Anas</button>
+  <button id="btnOussama" style="background-color:blue;">Oussama</button>
+  <button id="btnAmine" style="background-color:yellow; color:black;">Amine</button>
 </div>
 
-<div id="step2" style="display:none;">
+<div id="step2">
   <h2>Step 2: Choose a secondary person</h2>
-  <button style="background-color:brown;" data-name="Houssam">Houssam</button>
-  <button style="background-color:green;" data-name="Zaki">Zaki</button>
+  <button id="btnHoussam" style="background-color:brown;">Houssam</button>
+  <button id="btnZaki" style="background-color:green;">Zaki</button>
 </div>
 
-<div id="step3" style="display:none;">
+<div id="step3">
   <h2>Step 3: Enter details</h2>
   <label>Price (MAD)</label>
-  <input type="number" id="price" placeholder="Enter price" />
+  <input type="number" id="price" placeholder="Enter price">
   <label>Description</label>
   <textarea id="description" placeholder="Enter description"></textarea>
   <button id="sendBtn" style="background-color:green;">Send</button>
   <button id="backBtn" style="background-color:gray;">Back</button>
 </div>
 
-<script type="module">
-  // Firebase setup
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-firestore.js";
+<!-- Firebase scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.6.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.6.2/firebase-firestore-compat.js"></script>
 
+<script>
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCh8ssk6K7_LXDPpG3X85Z7VlUwDa_0_Og",
     authDomain: "deliverymarrakech.firebaseapp.com",
@@ -70,69 +52,63 @@
     measurementId: "G-YMXBJFJ9N8"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  // Steps handling
-  let mainPerson = "";
-  let secondaryPerson = "";
+  // Variables
+  let mainPerson = '';
+  let secondaryPerson = '';
 
-  const step1Buttons = document.querySelectorAll("#step1 button");
-  const step2Buttons = document.querySelectorAll("#step2 button");
-  const step1Div = document.getElementById("step1");
-  const step2Div = document.getElementById("step2");
-  const step3Div = document.getElementById("step3");
-  const sendBtn = document.getElementById("sendBtn");
-  const backBtn = document.getElementById("backBtn");
+  // Step 1 buttons
+  document.getElementById("btnAnas").onclick = () => { mainPerson="Anas"; showStep2(); }
+  document.getElementById("btnOussama").onclick = () => { mainPerson="Oussama"; showStep2(); }
+  document.getElementById("btnAmine").onclick = () => { mainPerson="Amine"; showStep2(); }
 
-  step1Buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      mainPerson = btn.dataset.name;
-      step1Div.style.display = "none";
-      step2Div.style.display = "block";
-    });
-  });
+  // Step 2 buttons
+  document.getElementById("btnHoussam").onclick = () => { secondaryPerson="Houssam"; showStep3(); }
+  document.getElementById("btnZaki").onclick = () => { secondaryPerson="Zaki"; showStep3(); }
 
-  step2Buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      secondaryPerson = btn.dataset.name;
-      step2Div.style.display = "none";
-      step3Div.style.display = "block";
-    });
-  });
+  // Back button
+  document.getElementById("backBtn").onclick = () => {
+    document.getElementById("step3").style.display="none";
+    document.getElementById("step2").style.display="block";
+  }
 
-  backBtn.addEventListener("click", () => {
-    step3Div.style.display = "none";
-    step2Div.style.display = "block";
-  });
-
-  sendBtn.addEventListener("click", async () => {
+  // Send button
+  document.getElementById("sendBtn").onclick = () => {
     const price = document.getElementById("price").value;
     const description = document.getElementById("description").value;
 
-    if (!price) {
-      alert("Please enter a price!");
-      return;
-    }
+    if(!price){ alert("Please enter a price!"); return; }
 
-    try {
-      await addDoc(collection(db, "orders"), {
-        mainPerson,
-        secondaryPerson,
-        price: Number(price),
-        description
-      });
+    db.collection("orders").add({
+      mainPerson,
+      secondaryPerson,
+      price: Number(price),
+      description
+    }).then(() => {
       alert("Order sent successfully!");
-      // Reset all steps
-      step3Div.style.display = "none";
-      step1Div.style.display = "block";
-      document.getElementById("price").value = "";
-      document.getElementById("description").value = "";
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("Failed to send order.");
-    }
-  });
+      // Reset
+      document.getElementById("price").value="";
+      document.getElementById("description").value="";
+      document.getElementById("step3").style.display="none";
+      document.getElementById("step1").style.display="block";
+    }).catch(err => {
+      console.error(err);
+      alert("Error sending order");
+    });
+  }
+
+  // Functions to switch steps
+  function showStep2(){
+    document.getElementById("step1").style.display="none";
+    document.getElementById("step2").style.display="block";
+  }
+
+  function showStep3(){
+    document.getElementById("step2").style.display="none";
+    document.getElementById("step3").style.display="block";
+  }
 </script>
 
 </body>
