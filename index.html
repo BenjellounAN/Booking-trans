@@ -6,157 +6,332 @@
 <title>Private System</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
+
+body{
+margin:0;
+font-family:Arial;
 }
 
-/* Login Page */
-#loginPage {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background: #f2f2f2;
-}
-
-input {
-    padding: 10px;
-    font-size: 16px;
-    margin: 5px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#mainPage, #anasPage {
-    display: none;
-    height: 100vh;
-    background: white;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.main-btn {
-    width: 200px;
-    margin: 10px;
+/* Fixed Admin Button */
+.fixed-admin-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #2c3e50;
     color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 16px;
     font-weight: bold;
-}
-
-.red { background: red; }
-.blue { background: blue; }
-.yellow { background: gold; color: black; }
-
-.money-container {
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid white;
 }
 
-.mad-label {
-    margin-left: 5px;
-    font-weight: bold;
+.fixed-admin-btn:hover {
+    background: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
+
+.fixed-admin-btn:active {
+    transform: translateY(0);
+}
+
+.fixed-admin-btn span {
+    font-size: 20px;
+}
+
+/* LOGIN */
+#loginPage{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:#f2f2f2;
+position: relative;
+}
+
+input{
+padding:10px;
+font-size:16px;
+margin:5px;
+width:200px;
+border: 1px solid #ddd;
+border-radius: 4px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+border:none;
+cursor:pointer;
+border-radius:6px;
+}
+
+#mainPage,#choosePage,#paymentPage{
+display:none;
+height:100vh;
+background:white;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+position: relative;
+}
+
+.main-btn{
+width:200px;
+margin:10px;
+color:white;
+font-weight:bold;
+border-radius: 8px;
+transition: transform 0.2s;
+}
+
+.main-btn:active {
+    transform: scale(0.95);
+}
+
+.red{background:red;}
+.blue{background:#2196f3;}
+.orange{background:orange;}
+.green{background:green;}
+.yellow{background:gold;color:black;}
+
+.money-container{
+display:flex;
+align-items:center;
+}
+
+.mad-label{
+margin-left:5px;
+font-weight:bold;
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+    .fixed-admin-btn {
+        top: 10px;
+        right: 10px;
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+    
+    .main-btn {
+        width: 180px;
+    }
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- Login -->
+<!-- Fixed Admin Button -->
+<button class="fixed-admin-btn" onclick="openAdminPanel()">
+    <span></span> ADMIN
+</button>
+
+<!-- LOGIN -->
+
 <div id="loginPage">
-    <h2>User Login</h2>
-    <input type="text" id="username" placeholder="User name">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="checkLogin()">Login</button>
+
+<h2>User Login</h2>
+
+<input id="username" placeholder="User name">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="checkLogin()">Login</button>
+
 </div>
 
-<!-- Main Page -->
+<!-- MAIN PAGE -->
+
 <div id="mainPage">
-    <button class="main-btn red" onclick="openAnas()">Anas</button>
-    <button class="main-btn blue">Oussama</button>
-    <button class="main-btn yellow">Amine</button>
+
+<button class="main-btn red" onclick="openPerson('Anas')">Anas</button>
+
+<button class="main-btn blue" onclick="openPerson('Oussama')">Oussama</button>
+
+<button class="main-btn yellow" onclick="openPerson('Amine')">Amine</button>
+
 </div>
 
-<!-- Anas Page -->
-<div id="anasPage">
-    <h2>Enter Payment</h2>
+<!-- CHOOSE PAGE - فقط Houssam و Zaki -->
 
-    <div class="money-container">
-        <input type="number" id="amount" placeholder="Amount" min="0">
-        <span class="mad-label">MAD</span>
-    </div>
+<div id="choosePage">
 
-    <input type="text" id="description" placeholder="Description (max 60 characters)" maxlength="60">
+<h2>Select Partner</h2>
 
-    <br><br>
-    <button onclick="sendData()">Send</button>
-    <br><br>
-    <button onclick="goBack()">Back</button>
+<button class="main-btn orange" onclick="selectPerson('Houssam')">Houssam</button>
+
+<button class="main-btn green" onclick="selectPerson('Zaki')">Zaki</button>
+
+<br><br>
+
+<button onclick="backMain()">Back</button>
+
+</div>
+
+<!-- PAYMENT PAGE -->
+
+<div id="paymentPage">
+
+<h2>Enter Payment</h2>
+
+<div class="money-container">
+
+<input type="number" id="amount" placeholder="Amount">
+
+<span class="mad-label">MAD</span>
+
+</div>
+
+<input id="description" maxlength="60" placeholder="Description">
+
+<br><br>
+
+<button onclick="sendData()">Send</button>
+
+<br><br>
+
+<button onclick="backChoose()">Back</button>
+
 </div>
 
 <script>
-let currentUser = "";
 
+let currentUser = ""
+let mainPerson = ""
+let selectedPerson = ""
+
+// قائمة المستخدمين المسموح لهم
 const allowedUsers = [
 "user1","user2","user3","user4","user5",
 "user6","user7","user8","user9","user10"
-];
+]
 
-function checkLogin() {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
+// Function to open admin panel
+function openAdminPanel() {
+    // You can add authentication check here if needed
+    window.location.href = 'admin.html';
+}
 
-    if (allowedUsers.includes(username) && password === "12341234") {
-        currentUser = username;
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("mainPage").style.display = "flex";
-    } else {
-        alert("Invalid username or password");
+function checkLogin(){
+
+const username = document.getElementById("username").value.trim()
+const password = document.getElementById("password").value
+
+if(allowedUsers.includes(username) && password === "12341234"){
+
+currentUser = username
+
+document.getElementById("loginPage").style.display = "none"
+document.getElementById("mainPage").style.display = "flex"
+
+}else{
+
+alert("Invalid username or password")
+
+}
+
+}
+
+function openPerson(name){
+
+mainPerson = name
+
+document.getElementById("mainPage").style.display = "none"
+document.getElementById("choosePage").style.display = "flex"
+
+}
+
+function backMain(){
+
+document.getElementById("choosePage").style.display = "none"
+document.getElementById("mainPage").style.display = "flex"
+
+}
+
+function selectPerson(name){
+
+selectedPerson = name
+
+document.getElementById("choosePage").style.display = "none"
+document.getElementById("paymentPage").style.display = "flex"
+
+}
+
+function backChoose(){
+
+document.getElementById("paymentPage").style.display = "none"
+document.getElementById("choosePage").style.display = "flex"
+
+}
+
+function sendData(){
+
+const amount = document.getElementById("amount").value
+const description = document.getElementById("description").value
+
+if(amount === "" || description === ""){
+
+alert("Please fill all fields")
+return
+
+}
+
+// حساب النصف
+const half = amount / 2
+
+// إنشاء كائن البيانات بالمفاتيح المطلوبة
+const data = {
+
+main: mainPerson,           // الشخص الرئيسي (Anas, Oussama, Amine)
+partner: selectedPerson,     // الشريك (Houssam أو Zaki)
+amount: amount + " MAD",
+main_share: half + " MAD",   // نصيب الرئيسي
+partner_share: half + " MAD", // نصيب الشريك
+description: description,
+date: new Date().toLocaleString(),
+loggedInUser: currentUser
+
+}
+
+// حفظ في localStorage
+let allData = JSON.parse(localStorage.getItem("payments")) || []
+allData.push(data)
+localStorage.setItem("payments", JSON.stringify(allData))
+
+alert("✅ Saved Successfully!")
+
+// مسح الحقول
+document.getElementById("amount").value = ""
+document.getElementById("description").value = ""
+
+// العودة لصفحة الاختيار
+backChoose()
+
+}
+
+// Keyboard support for Enter key
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        // If on login page, trigger login
+        if (document.getElementById("loginPage").style.display !== "none") {
+            checkLogin();
+        }
     }
-}
+});
 
-function openAnas() {
-    document.getElementById("mainPage").style.display = "none";
-    document.getElementById("anasPage").style.display = "flex";
-}
-
-function goBack() {
-    document.getElementById("anasPage").style.display = "none";
-    document.getElementById("mainPage").style.display = "flex";
-}
-
-function sendData() {
-    const amount = document.getElementById("amount").value;
-    const description = document.getElementById("description").value;
-
-    if (amount === "" || description === "") {
-        alert("Please fill all fields");
-        return;
-    }
-
-    const data = {
-        user: currentUser,
-        amount: amount + " MAD",
-        description: description,
-        date: new Date().toLocaleString()
-    };
-
-    let allData = JSON.parse(localStorage.getItem("payments")) || [];
-    allData.push(data);
-    localStorage.setItem("payments", JSON.stringify(allData));
-
-    alert("Good Job ✅");
-
-    document.getElementById("amount").value = "";
-    document.getElementById("description").value = "";
-}
 </script>
 
 </body>
