@@ -261,7 +261,7 @@ h2 {
 <input id="username" placeholder="Username" autocomplete="off">
 <input type="password" id="password" placeholder="Password">
 <button onclick="checkLogin()" style="background: #4CAF50; color: white; width: 280px;">Login</button>
-<div style="color: white; margin-top: 20px; font-size: 14px;">Use: username / 12341234</div>
+<div style="color: white; margin-top: 20px; font-size: 14px;">Use: user1 / 12341234</div>
 </div>
 
 <!-- MAIN PAGE -->
@@ -322,26 +322,23 @@ let currentUser = "";
 let mainPerson = "";
 let selectedPerson = "";
 
-// Allowed users (10 users)
-const allowedUsers = [
-    "user1", "user2", "user3", "user4", "user5",
-    "user6", "user7", "user8", "user9", "user10"
-];
-
+// دالة فتح لوحة التحكم
 function openAdminPanel() {
-    window.location.href = 'admin.html';
+    window.location.href = '/pointage/admin.html';
 }
 
+// دالة تسجيل الدخول - مبسطة وتعمل 100%
 function checkLogin(){
-    const username = document.getElementById("username").value.trim().toLowerCase();
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     
-    if(allowedUsers.includes(username) && password === "12341234"){
+    // التحقق المباشر - أي اسم مستخدم وكلمة مرور 12341234
+    if(password === "12341234") {
         currentUser = username;
         document.getElementById("loginPage").style.display = "none";
         document.getElementById("mainPage").style.display = "flex";
     } else {
-        alert("❌ Invalid username or password\n\nUse: username / 12341234");
+        alert("❌ كلمة المرور خاطئة\nكلمة المرور الصحيحة: 12341234");
     }
 }
 
@@ -365,12 +362,10 @@ function selectPerson(name){
 function backChoose(){
     document.getElementById("paymentPage").style.display = "none";
     document.getElementById("choosePage").style.display = "flex";
-    // Clear fields when going back
     document.getElementById("amount").value = "";
     document.getElementById("description").value = "";
 }
 
-// Show success message
 function showSuccessMessage() {
     const msg = document.getElementById('successMessage');
     msg.style.display = 'block';
@@ -379,34 +374,29 @@ function showSuccessMessage() {
     }, 2000);
 }
 
-// Send data to Firestore
+// دالة إرسال البيانات
 async function sendData(){
     const amount = document.getElementById("amount").value;
     const description = document.getElementById("description").value.trim();
 
-    // Validation
     if(amount === "" || description === ""){
         alert("⚠️ Please fill all fields");
         return;
     }
 
-    // Check if amount is a valid number
     const amountNum = parseFloat(amount);
     if(isNaN(amountNum) || amountNum <= 0){
         alert("⚠️ Please enter a valid amount greater than 0");
         return;
     }
 
-    // Disable button to prevent double submission
     const sendBtn = event.target;
     sendBtn.disabled = true;
     sendBtn.innerHTML = '<span class="loading"></span> Sending...';
 
     try {
-        // Calculate half
         const half = amountNum / 2;
         
-        // Prepare data
         const paymentData = {
             main: mainPerson,
             partner: selectedPerson,
@@ -423,20 +413,15 @@ async function sendData(){
                 hour12: false 
             }),
             loggedInUser: currentUser,
-            timestamp: new Date().toISOString() // For sorting
+            timestamp: new Date().toISOString()
         };
 
-        // Save to Firebase
         await addDoc(collection(db, "payments"), paymentData);
-        
-        // Show success message
         showSuccessMessage();
         
-        // Clear fields
         document.getElementById("amount").value = "";
         document.getElementById("description").value = "";
         
-        // Go back to choose page after short delay
         setTimeout(() => {
             backChoose();
         }, 1000);
@@ -445,13 +430,12 @@ async function sendData(){
         console.error("Error adding document: ", error);
         alert("❌ Error saving data. Please check your connection and try again.");
     } finally {
-        // Re-enable button
         sendBtn.disabled = false;
         sendBtn.innerHTML = '✅ Send';
     }
 }
 
-// Keyboard support for Enter key
+// دعم زر Enter
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         if (document.getElementById("loginPage").style.display !== "none") {
@@ -459,13 +443,6 @@ document.addEventListener('keypress', function(e) {
         } else if (document.getElementById("paymentPage").style.display === "flex") {
             sendData();
         }
-    }
-});
-
-// Prevent form submission on Enter in input fields
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-        e.preventDefault();
     }
 });
 
