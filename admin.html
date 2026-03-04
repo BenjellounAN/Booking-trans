@@ -3,325 +3,712 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Admin Login - Payment System</title>
+<title>Admin Panel - Payment Records</title>
 
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
 
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-    .login-container {
-        background: white;
-        border-radius: 30px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-        padding: 40px 30px;
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-        animation: slideUp 0.5s ease;
-    }
+body{
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+background: #f0f2f5;
+padding: 12px;
+margin:0;
+min-height: 100vh;
+}
 
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+h1{
+text-align:center;
+color:#1a1a1a;
+margin: 15px 0 20px;
+font-size: 1.8em;
+}
 
-    .login-icon {
-        font-size: 4em;
-        margin-bottom: 20px;
-    }
+/* Header Actions */
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-    h1 {
-        color: #333;
-        margin-bottom: 10px;
-        font-size: 1.8em;
-    }
+.refresh-btn{
+padding:12px 25px;
+background:#2196f3;
+color:white;
+border:none;
+border-radius:25px;
+cursor:pointer;
+font-size:0.95em;
+font-weight:500;
+box-shadow:0 2px 8px rgba(33,150,243,0.3);
+transition: all 0.2s;
+display: inline-flex;
+align-items: center;
+gap: 5px;
+}
 
-    .subtitle {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 0.95em;
-    }
+.refresh-btn:active{
+transform:scale(0.95);
+background:#1976d2;
+}
 
-    .input-group {
-        margin-bottom: 20px;
-        text-align: left;
-    }
+.clear-all-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(220,53,69,0.3);
+    transition: all 0.2s;
+    font-size: 0.95em;
+}
 
-    .input-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #555;
-        font-weight: 500;
-        font-size: 0.9em;
-    }
+.clear-all-btn:active {
+    transform: scale(0.95);
+    background: #c82333;
+}
 
-    .input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
+.clear-all-btn:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
 
-    .input-icon {
-        position: absolute;
-        left: 15px;
-        color: #999;
-        font-size: 1.2em;
-    }
+/* Table Container */
+.table-container{
+overflow-x: auto;
+border-radius: 16px;
+box-shadow:0 4px 15px rgba(0,0,0,0.1);
+margin-bottom: 25px;
+background: white;
+}
 
-    .input-group input {
-        width: 100%;
-        padding: 15px 15px 15px 45px;
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        font-size: 1em;
-        transition: all 0.3s ease;
-        background: #f8f9fa;
-    }
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+font-size: 14px;
+min-width: 700px;
+}
 
-    .input-group input:focus {
-        outline: none;
-        border-color: #667eea;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
+th,td{
+padding:14px 10px;
+border:1px solid #e0e0e0;
+text-align:center;
+}
 
-    .input-group input::placeholder {
-        color: #aaa;
-    }
+th{
+background:#2c3e50;
+color:white;
+font-weight:600;
+font-size: 13px;
+white-space: nowrap;
+}
 
-    .login-btn {
-        width: 100%;
-        padding: 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        font-size: 1.1em;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
+tr:nth-child(even){
+background:#f8f9fa;
+}
 
-    .login-btn:active {
-        transform: scale(0.98);
-        box-shadow: 0 5px 10px rgba(102, 126, 234, 0.4);
-    }
+tr:hover{
+background:#e8f0fe;
+}
 
-    .login-btn:disabled {
-        opacity: 0.6;
-        pointer-events: none;
-    }
+/* Person badges */
+.person-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 12px;
+    min-width: 80px;
+}
 
-    .error-message {
-        color: #dc3545;
-        font-size: 0.9em;
-        margin-top: 15px;
-        display: none;
-        padding: 12px;
-        background: #f8d7da;
-        border-radius: 10px;
-        border: 1px solid #f5c6cb;
-    }
+.person-anas { background: #ffcdd2; color: #c62828; }
+.person-ous { background: #bbdefb; color: #1565c0; }
+.person-amine { background: #fff9c4; color: #9e6b0c; }
+.person-houssam { background: #ffe0b2; color: #bf5e00; }
+.person-zaki { background: #c8e6c9; color: #2e7d32; }
 
-    .error-message.show {
-        display: block;
-        animation: shake 0.5s ease;
-    }
+/* Delete button for each row */
+.delete-row-btn {
+    background: #ff5252;
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(255,82,82,0.3);
+}
 
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-    }
+.delete-row-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+}
 
-    .info-text {
-        margin-top: 25px;
-        color: #888;
-        font-size: 0.85em;
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px dashed #ddd;
-    }
+.delete-row-btn:active {
+    transform: scale(0.9);
+}
 
-    .info-text strong {
-        color: #667eea;
-    }
+/* Summary Section */
+.summary{
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 10px;
+margin: 20px 0 10px;
+}
 
-    .credentials-hint {
-        background: #e3f2fd;
-        padding: 12px;
-        border-radius: 10px;
-        margin: 20px 0 10px;
-        font-size: 0.9em;
-        color: #1976d2;
-        border: 1px solid #bbdefb;
-    }
+.box{
+background: white;
+padding: 12px 8px;
+border-radius: 16px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+font-weight: 500;
+font-size: 0.9em;
+text-align: center;
+border: 1px solid #eaeef2;
+transition: transform 0.2s;
+}
 
-    /* Loading spinner */
-    .spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(255,255,255,.3);
-        border-radius: 50%;
-        border-top-color: #fff;
-        animation: spin 1s ease-in-out infinite;
-    }
+.box:active{
+transform: scale(0.98);
+}
 
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
+.box span{
+display: block;
+font-size: 1.3em;
+font-weight: 700;
+margin-top: 5px;
+color: #2c3e50;
+}
 
-    /* Responsive */
-    @media (max-width: 480px) {
-        .login-container {
-            padding: 30px 20px;
-        }
-        
-        h1 {
-            font-size: 1.5em;
-        }
-        
-        .login-btn {
-            padding: 14px;
-        }
-    }
-</style>
-</head>
-<body>
+/* Person-specific summary colors */
+.box[data-person="anas"] { border-top: 4px solid #c62828; }
+.box[data-person="oussama"] { border-top: 4px solid #1565c0; }
+.box[data-person="amine"] { border-top: 4px solid #9e6b0c; }
+.box[data-person="houssam"] { border-top: 4px solid #bf5e00; }
+.box[data-person="zaki"] { border-top: 4px solid #2e7d32; }
 
-<div class="login-container">
-    <div class="login-icon">🔐</div>
-    
-    <h1>Admin Panel Login</h1>
-    
-    <div class="subtitle">Enter your credentials to access the payment system</div>
-    
-    <div class="credentials-hint">
-        <strong>Demo Credentials:</strong> Use bnk123 / bnk123
-    </div>
-    
-    <div class="input-group">
-        <label>Username</label>
-        <div class="input-wrapper">
-            <span class="input-icon">👤</span>
-            <input type="text" id="username" placeholder="Enter your username" value="bnk123" autocomplete="off">
-        </div>
-    </div>
-    
-    <div class="input-group">
-        <label>Password</label>
-        <div class="input-wrapper">
-            <span class="input-icon">🔑</span>
-            <input type="password" id="password" placeholder="Enter your password" value="bnk123">
-        </div>
-    </div>
-    
-    <button class="login-btn" onclick="handleLogin()" id="loginBtn">
-        <span>🔓</span> Login to Admin Panel
-    </button>
-    
-    <div class="error-message" id="errorMessage">
-        ❌ Invalid username or password. Please use bnk123/bnk123
-    </div>
-    
-    <div class="info-text">
-        <strong>⚠️ Note:</strong> Only authorized administrators can access this panel.
-    </div>
-</div>
+.box small {
+    color: #666;
+    font-size: 0.75em;
+    display: block;
+    margin-top: 2px;
+}
 
-<script>
-function handleLogin() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const loginBtn = document.getElementById('loginBtn');
-    const errorMsg = document.getElementById('errorMessage');
-    
-    // Hide any previous error
-    errorMsg.classList.remove('show');
-    
-    // Validate inputs
-    if (!username || !password) {
-        errorMsg.textContent = '❌ Please enter both username and password';
-        errorMsg.classList.add('show');
-        return;
+.no-data{
+text-align:center;
+padding:50px 20px;
+background:white;
+border-radius:16px;
+color:#666;
+font-size:1.1em;
+}
+
+.no-data-icon{
+font-size:3.5em;
+margin-bottom:15px;
+opacity:0.5;
+}
+
+/* Confirmation Dialog */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+    backdrop-filter: blur(3px);
+}
+
+.dialog-overlay.active {
+    display: block;
+}
+
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 25px;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+    z-index: 1000;
+    display: none;
+    width: 90%;
+    max-width: 320px;
+}
+
+.confirm-dialog.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
     }
-    
-    // Check credentials (case-sensitive)
-    if (username === 'bnk123' && password === 'bnk123') {
-        
-        // Show loading state
-        loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
-        loginBtn.disabled = true;
-        
-        // Simulate slight delay for better UX
-        setTimeout(() => {
-            // Store login session (optional)
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            sessionStorage.setItem('adminUser', username);
-            
-            // Redirect to admin.html
-            window.location.href = 'admin.html';
-        }, 800);
-        
-    } else {
-        // Show error message
-        errorMsg.classList.add('show');
-        
-        // Shake the container
-        document.querySelector('.login-container').style.animation = 'shake 0.5s ease';
-        setTimeout(() => {
-            document.querySelector('.login-container').style.animation = '';
-        }, 500);
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
     }
 }
 
-// Allow Enter key to submit
-document.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        handleLogin();
+.confirm-dialog .icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+.confirm-dialog h3 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.4em;
+}
+
+.confirm-dialog p {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.dialog-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s;
+}
+
+.dialog-btn.confirm {
+    background: #dc3545;
+    color: white;
+}
+
+.dialog-btn.confirm:active {
+    background: #c82333;
+    transform: scale(0.95);
+}
+
+.dialog-btn.cancel {
+    background: #e9ecef;
+    color: #333;
+}
+
+.dialog-btn.cancel:active {
+    background: #dee2e6;
+    transform: scale(0.95);
+}
+
+/* Success Toast */
+.success-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #28a745;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 50px;
+    box-shadow: 0 5px 20px rgba(40,167,69,0.4);
+    z-index: 1001;
+    display: none;
+    animation: slideUp 0.3s ease;
+    font-weight: 500;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 20px);
+        opacity: 0;
     }
-});
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
 
-// Auto-focus username field
-window.onload = function() {
-    document.getElementById('username').focus();
-};
+/* Stats counter */
+.stats-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin-left: 8px;
+}
 
-// Optional: Clear error when user starts typing
-document.getElementById('username').addEventListener('input', function() {
-    document.getElementById('errorMessage').classList.remove('show');
-});
+/* Responsive */
+@media (min-width: 768px) {
+    body {
+        padding: 30px;
+    }
+    
+    h1 {
+        font-size: 2.2em;
+    }
+    
+    .summary {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+    }
+    
+    .box {
+        padding: 15px 10px;
+        font-size: 1em;
+    }
+    
+    .box span {
+        font-size: 1.5em;
+    }
+    
+    table {
+        font-size: 15px;
+        min-width: auto;
+    }
+}
 
-document.getElementById('password').addEventListener('input', function() {
-    document.getElementById('errorMessage').classList.remove('show');
-});
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.empty-state .icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>💰 Payment Admin Panel</h1>
+
+<!-- Header Actions -->
+<div class="header-actions">
+    <button class="refresh-btn" onclick="loadData()">
+        <span>🔄</span> Refresh Data
+    </button>
+    
+    <button class="clear-all-btn" id="clearAllBtn" onclick="showClearAllDialog()">
+        <span>🗑️</span> Clear All Records
+    </button>
+</div>
+
+<!-- Table Container -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Main Person</th>
+                <th>Partner</th>
+                <th>Total Amount</th>
+                <th>Each Share</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tableData">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Summary Section -->
+<div class="summary" id="summaryContainer">
+    <div class="box" data-person="anas">
+        Anas <span id="anasTotal">0.00</span> <small>MAD</small>
+    </div>
+    <div class="box" data-person="oussama">
+        Oussama <span id="oussamaTotal">0.00</span> <small>MAD</small>
+    </div>
+    <div class="box" data-person="amine">
+        Amine <span id="amineTotal">0.00</span> <small>MAD</small>
+    </div>
+    <div class="box" data-person="houssam">
+        Houssam <span id="houssamTotal">0.00</span> <small>MAD</small>
+    </div>
+    <div class="box" data-person="zaki">
+        Zaki <span id="zakiTotal">0.00</span> <small>MAD</small>
+    </div>
+</div>
+
+<!-- Delete Single Confirmation Dialog -->
+<div class="dialog-overlay" id="dialogOverlay" onclick="hideAllDialogs()"></div>
+
+<div class="confirm-dialog" id="deleteSingleDialog">
+    <div class="icon">🗑️</div>
+    <h3>Delete Record</h3>
+    <p>Are you sure you want to delete this payment record? This action cannot be undone.</p>
+    <div class="dialog-buttons">
+        <button class="dialog-btn confirm" id="confirmDeleteBtn">Yes, Delete</button>
+        <button class="dialog-btn cancel" onclick="hideDeleteSingleDialog()">Cancel</button>
+    </div>
+</div>
+
+<!-- Clear All Confirmation Dialog -->
+<div class="confirm-dialog" id="clearAllDialog">
+    <div class="icon">⚠️</div>
+    <h3>Clear All Records</h3>
+    <p>Are you sure you want to delete ALL payment records? This action cannot be undone.</p>
+    <div class="dialog-buttons">
+        <button class="dialog-btn confirm" onclick="clearAllRecords()">Yes, Clear All</button>
+        <button class="dialog-btn cancel" onclick="hideClearAllDialog()">Cancel</button>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div class="success-toast" id="successToast">✅ Operation completed successfully!</div>
+
+<script>
+
+let currentDeleteIndex = null;
+let paymentsData = [];
+
+function loadData() {
+    
+    // Get data from localStorage
+    paymentsData = JSON.parse(localStorage.getItem("payments")) || []
+    
+    let table = document.getElementById("tableData")
+    
+    // Clear table
+    table.innerHTML = ""
+    
+    // Initialize totals for all persons
+    let totals = {
+        anas: 0,
+        oussama: 0,
+        amine: 0,
+        houssam: 0,
+        zaki: 0
+    }
+    
+    // Enable/disable clear all button
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (paymentsData.length === 0) {
+        clearAllBtn.disabled = true;
+    } else {
+        clearAllBtn.disabled = false;
+    }
+    
+    if(paymentsData.length === 0) {
+        // Show empty state
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" style="padding: 0;">
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>No Payment Records</h3>
+                        <p>There are no payment records yet. Add some from the main app.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    } else {
+        
+        // Display data in table (show newest first)
+        paymentsData.slice().reverse().forEach((item, displayIndex) => {
+            
+            // Extract amount (remove "MAD" and parse)
+            let amountStr = item.amount.replace(" MAD", "")
+            let amount = parseFloat(amountStr)
+            let half = amount / 2
+            
+            // Get actual index in original array
+            let actualIndex = paymentsData.length - 1 - displayIndex;
+            
+            // Get person class for styling
+            let mainClass = getPersonClass(item.main)
+            let partnerClass = getPersonClass(item.partner)
+            
+            let row = document.createElement("tr")
+            
+            row.innerHTML = `
+                <td><strong>#${displayIndex + 1}</strong></td>
+                <td><span class="person-badge ${mainClass}">${item.main || 'N/A'}</span></td>
+                <td><span class="person-badge ${partnerClass}">${item.partner || 'N/A'}</span></td>
+                <td><strong>${amount.toFixed(2)} MAD</strong></td>
+                <td>${half.toFixed(2)} MAD</td>
+                <td>${item.description || '-'}</td>
+                <td>${item.date || 'N/A'}</td>
+                <td>
+                    <button class="delete-row-btn" onclick="showDeleteSingleDialog(${actualIndex})" title="Delete this record">
+                        🗑️
+                    </button>
+                </td>
+            `
+            
+            table.appendChild(row)
+            
+            // Calculate totals for all persons
+            if(item.main === "Anas") totals.anas += half
+            if(item.main === "Oussama") totals.oussama += half
+            if(item.main === "Amine") totals.amine += half
+            if(item.partner === "Houssam") totals.houssam += half
+            if(item.partner === "Zaki") totals.zaki += half
+        })
+    }
+    
+    // Update totals in UI with 2 decimal places
+    document.getElementById("anasTotal").innerText = totals.anas.toFixed(2)
+    document.getElementById("oussamaTotal").innerText = totals.oussama.toFixed(2)
+    document.getElementById("amineTotal").innerText = totals.amine.toFixed(2)
+    document.getElementById("houssamTotal").innerText = totals.houssam.toFixed(2)
+    document.getElementById("zakiTotal").innerText = totals.zaki.toFixed(2)
+    
+}
+
+// Helper function to get person class for styling
+function getPersonClass(person) {
+    switch(person) {
+        case "Anas": return "person-anas"
+        case "Oussama": return "person-ous"
+        case "Amine": return "person-amine"
+        case "Houssam": return "person-houssam"
+        case "Zaki": return "person-zaki"
+        default: return ""
+    }
+}
+
+// Show delete single dialog
+function showDeleteSingleDialog(index) {
+    currentDeleteIndex = index
+    document.getElementById('dialogOverlay').classList.add('active')
+    document.getElementById('deleteSingleDialog').classList.add('active')
+    
+    // Set up confirm button
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        deleteSingleRecord(currentDeleteIndex)
+    }
+}
+
+// Hide delete single dialog
+function hideDeleteSingleDialog() {
+    document.getElementById('dialogOverlay').classList.remove('active')
+    document.getElementById('deleteSingleDialog').classList.remove('active')
+    currentDeleteIndex = null
+}
+
+// Delete single record
+function deleteSingleRecord(index) {
+    let data = JSON.parse(localStorage.getItem("payments")) || []
+    
+    if(index >= 0 && index < data.length) {
+        data.splice(index, 1)
+        localStorage.setItem("payments", JSON.stringify(data))
+        
+        // Show success message
+        showToast('Record deleted successfully!')
+        
+        // Reload data
+        loadData()
+    }
+    
+    hideDeleteSingleDialog()
+}
+
+// Show clear all dialog
+function showClearAllDialog() {
+    let data = JSON.parse(localStorage.getItem("payments")) || []
+    
+    if(data.length === 0) {
+        showToast('No records to delete!')
+        return
+    }
+    
+    document.getElementById('dialogOverlay').classList.add('active')
+    document.getElementById('clearAllDialog').classList.add('active')
+}
+
+// Hide clear all dialog
+function hideClearAllDialog() {
+    document.getElementById('dialogOverlay').classList.remove('active')
+    document.getElementById('clearAllDialog').classList.remove('active')
+}
+
+// Clear all records
+function clearAllRecords() {
+    localStorage.removeItem("payments")
+    loadData()
+    hideClearAllDialog()
+    showToast('All records cleared successfully!')
+}
+
+// Hide all dialogs
+function hideAllDialogs() {
+    document.getElementById('dialogOverlay').classList.remove('active')
+    document.getElementById('deleteSingleDialog').classList.remove('active')
+    document.getElementById('clearAllDialog').classList.remove('active')
+}
+
+// Show toast message
+function showToast(message) {
+    const toast = document.getElementById('successToast')
+    toast.textContent = '✅ ' + message
+    toast.style.display = 'block'
+    
+    setTimeout(() => {
+        toast.style.display = 'none'
+    }, 2000)
+}
+
+// Auto refresh every 30 seconds
+setInterval(loadData, 30000)
+
+// Load data on page load
+window.onload = loadData
 
 </script>
 
