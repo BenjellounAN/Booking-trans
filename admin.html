@@ -163,6 +163,7 @@ background:#e8f0fe;
 .person-amine { background: #fff9c4; color: #9e6b0c; }
 .person-houssam { background: #ffe0b2; color: #bf5e00; }
 .person-zaki { background: #c8e6c9; color: #2e7d32; }
+.person-mohamed { background: #e1bee7; color: #6a1b9a; }
 
 /* Delete button for each row */
 .deleteBtn {
@@ -228,6 +229,7 @@ color: #2c3e50;
 .box[data-person="amine"] { border-top: 4px solid #9e6b0c; }
 .box[data-person="houssam"] { border-top: 4px solid #bf5e00; }
 .box[data-person="zaki"] { border-top: 4px solid #2e7d32; }
+.box[data-person="mohamed"] { border-top: 4px solid #6a1b9a; }
 
 .box small {
     color: #666;
@@ -263,7 +265,7 @@ opacity:0.5;
     }
     
     .summary {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 15px;
     }
     
@@ -347,6 +349,9 @@ opacity:0.5;
     <div class="box" data-person="zaki">
         Zaki <span id="zakiTotal">0.00</span> <small>MAD</small>
     </div>
+    <div class="box" data-person="mohamed">
+        Mohamed <span id="mohamedTotal">0.00</span> <small>MAD</small>
+    </div>
 </div>
 
 <!-- Table Container -->
@@ -408,6 +413,7 @@ function getPersonClass(person) {
         case "amine": return "person-amine"
         case "houssam": return "person-houssam"
         case "zaki": return "person-zaki"
+        case "mohamed": return "person-mohamed"
         default: return ""
     }
 }
@@ -424,7 +430,8 @@ let totals = {
     oussama: 0,
     amine: 0,
     houssam: 0,
-    zaki: 0
+    zaki: 0,
+    mohamed: 0
 }
 
 if (snapshot.empty) {
@@ -457,8 +464,10 @@ if (snapshot.empty) {
     if(data.name1?.toLowerCase() === "anas") totals.anas += half
     if(data.name1?.toLowerCase() === "oussama") totals.oussama += half
     if(data.name1?.toLowerCase() === "amine") totals.amine += half
+    if(data.name1?.toLowerCase() === "mohamed") totals.mohamed += half
     if(data.name2?.toLowerCase() === "houssam") totals.houssam += half
     if(data.name2?.toLowerCase() === "zaki") totals.zaki += half
+    if(data.name2?.toLowerCase() === "mohamed") totals.mohamed += half
 
     row.innerHTML = `
     <td><span class="person-badge ${mainClass}">${data.name1 || 'N/A'}</span></td>
@@ -479,6 +488,7 @@ document.getElementById("oussamaTotal").innerText = totals.oussama.toFixed(2)
 document.getElementById("amineTotal").innerText = totals.amine.toFixed(2)
 document.getElementById("houssamTotal").innerText = totals.houssam.toFixed(2)
 document.getElementById("zakiTotal").innerText = totals.zaki.toFixed(2)
+document.getElementById("mohamedTotal").innerText = totals.mohamed.toFixed(2)
 
 })
 
