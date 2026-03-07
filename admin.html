@@ -274,32 +274,55 @@ background:#e3f2fd;
     transform: scale(0.9);
 }
 
-/* View Details Button */
-.view-details-btn {
-    background: #2196f3;
+/* View Details Button - فوق الجدول */
+.table-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.table-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.table-title svg {
+    width: 24px;
+    height: 24px;
+    fill: #2c3e50;
+}
+
+.view-details-header-btn {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 30px;
+    padding: 12px 24px;
+    border-radius: 40px;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 13px;
+    font-weight: 600;
+    font-size: 1rem;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 10px rgba(33,150,243,0.3);
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(33,150,243,0.3);
 }
 
-.view-details-btn:hover {
-    background: #1976d2;
+.view-details-header-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(33,150,243,0.4);
+    box-shadow: 0 8px 25px rgba(33,150,243,0.4);
 }
 
-.view-details-btn svg {
-    width: 16px;
-    height: 16px;
+.view-details-header-btn svg {
+    width: 20px;
+    height: 20px;
     fill: currentColor;
 }
 
@@ -649,6 +672,21 @@ opacity:0.5;
 
 <!-- Table Container -->
 <div class="table-container">
+    <div class="table-header-actions">
+        <div class="table-title">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            Current Payment Records
+        </div>
+        <button class="view-details-header-btn" onclick="window.location.href='operations.html'">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                <circle cx="12" cy="12" r="2.5"/>
+            </svg>
+            View All Operations
+        </button>
+    </div>
     <table>
         <thead>
             <tr>
@@ -657,7 +695,7 @@ opacity:0.5;
                 <th>Price (MAD)</th>
                 <th>Description</th>
                 <th>Time</th>
-                <th>Actions</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -760,16 +798,7 @@ db.collection("payments")
             <td><strong>${price.toFixed(2)}</strong></td>
             <td>${data.description || '-'}</td>
             <td>${data.time ? new Date(data.time.seconds * 1000).toLocaleString() : 'N/A'}</td>
-            <td>
-                <button class="deleteBtn" onclick="deleteDoc('${doc.id}')">🗑️</button>
-                <button class="view-details-btn" onclick="showAllTransfers()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
-                        <circle cx="12" cy="12" r="2.5"/>
-                    </svg>
-                    View Details
-                </button>
-            </td>
+            <td><button class="deleteBtn" onclick="deleteDoc('${doc.id}')">🗑️</button></td>
             `;
             tableBody.appendChild(row);
         });
@@ -1038,11 +1067,6 @@ sendBtn.addEventListener('click', async function() {
 
 // View wallet - Open modal and load ALL entries
 viewBtn.addEventListener('click', async function() {
-    await showAllTransfers();
-});
-
-// New function to show all transfers
-async function showAllTransfers() {
     try {
         viewBtn.innerHTML = `<span>⏳</span> Loading...`;
         viewBtn.disabled = true;
@@ -1060,10 +1084,7 @@ async function showAllTransfers() {
         viewBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/></svg> View Wallet`;
         viewBtn.disabled = false;
     }
-}
-
-// Make showAllTransfers available globally
-window.showAllTransfers = showAllTransfers;
+});
 </script>
 
 </body>
