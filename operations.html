@@ -695,6 +695,9 @@ let itemsPerPage = 15;
 const managers = ['anas', 'oussama', 'amine'];
 const workers = ['houssam', 'zaki', 'mohamed'];
 
+// Store original payment data for reference
+let originalPaymentsData = {};
+
 // DOM elements
 const tableBody = document.getElementById('tableBody');
 const typeFilter = document.getElementById('typeFilter');
@@ -787,11 +790,20 @@ async function loadAllOperations() {
             .get();
         
         allOperations = [];
+        originalPaymentsData = {};
         
         // Process payments
         paymentsSnapshot.forEach(doc => {
             const data = doc.data();
             const price = parseFloat(data.price) || 0;
+            
+            // Store original payment data
+            originalPaymentsData[doc.id] = {
+                sender: data.name1,
+                receiver: data.name2,
+                description: data.description || '-',
+                amount: price
+            };
             
             allOperations.push({
                 id: doc.id,
@@ -812,17 +824,34 @@ async function loadAllOperations() {
         transfersSnapshot.forEach(doc => {
             const data = doc.data();
             
+            // For wallet entries, we need to preserve the original sender and description
+            // If the entry came from a payment, it should have name1 and name2
+            // If not, use the member field as receiver and set sender based on context
+            
+            let sender = data.name1;
+            let receiver = data.name2 || data.member;
+            let description = data.description;
+            
+            // If this wallet entry was created from a payment, use the original payment data
+            if (data.originalPaymentId && originalPaymentsData[data.originalPaymentId]) {
+                const original = originalPaymentsData[data.originalPaymentId];
+                sender = original.sender;
+                receiver = original.receiver;
+                description = original.description;
+            }
+            
             allOperations.push({
                 id: doc.id,
                 type: 'transfer',
                 collection: 'wallet_entries',
-                sender: data.name1 || 'System',
-                receiver: data.name2 || data.member || 'Unknown',
+                sender: sender || 'System',
+                receiver: receiver || 'Unknown',
                 amount: data.amount || 0,
-                description: data.description || 'Transfer to wallet',
+                description: description || 'Transfer',
                 timestamp: data.timestamp,
                 date: formatDate(data.timestamp),
-                status: data.status || 'paid', // If status exists, use it, otherwise default to "paid" for backward compatibility
+                status: data.status || 'paid', // If status exists, use it, otherwise default to "paid"
+                originalPaymentId: data.originalPaymentId, // Store reference to original payment
                 rawData: data
             });
         });
@@ -867,16 +896,59 @@ function setupRealtimeListener() {
                 // Find and update the operation in allOperations
                 const operationIndex = allOperations.findIndex(op => op.id === change.doc.id && op.collection === 'wallet_entries');
                 if (operationIndex !== -1) {
-                    allOperations[operationIndex].status = updatedData.status || 'paid';
-                    allOperations[operationIndex].amount = updatedData.amount || 0;
-                    allOperations[operationIndex].description = updatedData.description || allOperations[operationIndex].description;
+                    // Get the existing operation to preserve data
+                    const existingOp = allOperations[operationIndex];
+                    
+                    // Update only the status, preserve all other data
+                    allOperations[operationIndex] = {
+                        ...existingOp,
+                        status: updatedData.status || existingOp.status,
+                        // Make sure we don't lose sender/receiver/description
+                        sender: existingOp.sender,
+                        receiver: existingOp.receiver,
+                        description: existingOp.description,
+                        amount: existingOp.amount
+                    };
                     
                     // Re-apply filters and re-render
                     applyFilters();
                 }
             } else if (change.type === "added") {
-                // New transfer added - reload all to be safe
-                loadAllOperations();
+                // New transfer added - we need to get the original payment data if available
+                const newData = change.doc.data();
+                
+                // Check if this new entry has an originalPaymentId
+                if (newData.originalPaymentId && originalPaymentsData[newData.originalPaymentId]) {
+                    const original = originalPaymentsData[newData.originalPaymentId];
+                    
+                    // Add to allOperations with the correct data
+                    allOperations.push({
+                        id: change.doc.id,
+                        type: 'transfer',
+                        collection: 'wallet_entries',
+                        sender: original.sender,
+                        receiver: original.receiver,
+                        amount: newData.amount || 0,
+                        description: original.description,
+                        timestamp: newData.timestamp,
+                        date: formatDate(newData.timestamp),
+                        status: newData.status || 'paid',
+                        originalPaymentId: newData.originalPaymentId,
+                        rawData: newData
+                    });
+                    
+                    // Re-sort and re-render
+                    allOperations.sort((a, b) => {
+                        const timeA = a.timestamp?.seconds || 0;
+                        const timeB = b.timestamp?.seconds || 0;
+                        return timeB - timeA;
+                    });
+                    
+                    applyFilters();
+                } else {
+                    // If no original payment data, reload all to be safe
+                    loadAllOperations();
+                }
             }
         });
     }, (error) => {
@@ -961,9 +1033,8 @@ function updateStats() {
     filteredOperations.forEach(op => {
         if (op.type === 'payment') {
             const sender = op.sender?.toLowerCase() || '';
-            const receiver = op.receiver?.toLowerCase() || '';
             
-            // Add to person totals
+            // Add to person totals based on sender only for payments
             if (sender === 'anas') anasTotal += op.amount;
             if (sender === 'oussama') oussamaTotal += op.amount;
             if (sender === 'amine') amineTotal += op.amount;
