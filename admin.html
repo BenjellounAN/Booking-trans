@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Admin Panel · Professional Wallet History System</title>
+<title>Admin Panel · Wallet System</title>
 
 <style>
 * {
@@ -27,7 +27,7 @@ margin: 15px 0 20px;
 font-size: 1.8em;
 }
 
-/* ========== HEADER ACTIONS ========== */
+/* Header Actions */
 .header-actions {
     display: flex;
     flex-direction: column;
@@ -144,7 +144,7 @@ font-size: 1.8em;
     height: 22px;
 }
 
-/* ========== MAIN SUMMARY SECTION ========== */
+/* Summary Section - Current Totals */
 .summary{
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -191,7 +191,7 @@ color: #1e2b3a;
     margin-top: 5px;
 }
 
-/* ========== TABLE STYLES ========== */
+/* Table Container */
 .table-container{
 overflow-x: auto;
 border-radius: 24px;
@@ -274,7 +274,7 @@ background:#e3f2fd;
     transform: scale(0.9);
 }
 
-/* ========== WALLET HISTORY MODAL (FULL SCREEN) ========== */
+/* ========== WALLET MODAL - FIXED HORIZONTAL DISPLAY ========== */
 .wallet-modal {
     display: none;
     position: fixed;
@@ -285,197 +285,152 @@ background:#e3f2fd;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     z-index: 10000;
     overflow-y: auto;
-    padding: 30px;
-    animation: fadeIn 0.4s ease;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.98); }
     to { opacity: 1; transform: scale(1); }
 }
 
 .modal-content {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 1300px;
+    margin: 20px auto;
     position: relative;
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(10px);
-    border-radius: 50px;
-    padding: 40px;
-    min-height: 90vh;
+    border-radius: 40px;
+    padding: 30px;
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Close Button */
 .close-modal-btn {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 15px;
+    right: 20px;
     background: linear-gradient(135deg, #f44336, #d32f2f);
     color: white;
     border: none;
-    width: 60px;
-    height: 60px;
-    border-radius: 30px;
-    font-size: 32px;
+    width: 45px;
+    height: 45px;
+    border-radius: 25px;
+    font-size: 28px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 30px rgba(244,67,54,0.4);
+    box-shadow: 0 10px 25px rgba(244,67,54,0.4);
     transition: all 0.3s;
     z-index: 10001;
 }
 
 .close-modal-btn:hover {
     transform: rotate(90deg) scale(1.1);
-    background: linear-gradient(135deg, #d32f2f, #b71c1c);
 }
 
 .modal-header {
-    margin-bottom: 40px;
-    padding-right: 80px;
+    margin-bottom: 30px;
+    padding-right: 60px;
 }
 
 .modal-header h2 {
-    font-size: 2.8rem;
+    font-size: 2rem;
     color: white;
-    font-weight: 800;
+    font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     display: inline-block;
-    border-bottom: 4px solid rgba(255,255,255,0.3);
-    padding-bottom: 15px;
+    border-bottom: 3px solid rgba(255,255,255,0.3);
+    padding-bottom: 10px;
 }
 
-.modal-header p {
-    color: rgba(255,255,255,0.9);
-    font-size: 1.2rem;
-    margin-top: 10px;
-}
-
-/* Members Grid - كل عضو في بطاقة أفقية */
-.members-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-top: 30px;
-}
-
-/* Member Card */
-.member-history-card {
-    background: rgba(255,255,255,0.95);
-    border-radius: 30px;
-    padding: 25px 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    backdrop-filter: blur(5px);
-    transition: transform 0.3s;
-}
-
-.member-history-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-}
-
-/* Member Header */
-.member-header {
+/* HORIZONTAL CARDS CONTAINER */
+.horizontal-cards-container {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #eef2f6;
-}
-
-.member-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: white;
+    margin: 20px 0;
 }
 
-.avatar-anas { background: linear-gradient(135deg, #c62828, #b71c1c); }
-.avatar-oussama { background: linear-gradient(135deg, #1565c0, #0d47a1); }
-.avatar-amine { background: linear-gradient(135deg, #9e6b0c, #7f5a0a); }
-.avatar-houssam { background: linear-gradient(135deg, #bf5e00, #9e4d00); }
-.avatar-zaki { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
-.avatar-mohamed { background: linear-gradient(135deg, #6a1b9a, #4a0072); }
-
-.member-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #2d3748;
-}
-
-/* History Entries Container - المجاميع تحت بعض */
-.history-entries {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-
-/* Individual History Entry */
-.history-entry {
+/* SMALL HORIZONTAL CARD - كل بطاقة أفقية صغيرة */
+.small-wallet-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 15px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    border: 1px solid #edf2f7;
-    transition: all 0.2s;
+    min-width: 160px;
+    max-width: 180px;
+    flex: 1 1 auto;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    transition: all 0.3s;
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
-.history-entry:hover {
-    background: #f8fafd;
-    transform: translateX(5px);
-    border-left: 4px solid;
+.small-wallet-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-.history-entry .entry-amount {
-    font-size: 1.5rem;
+/* Card Header - اسم العضو */
+.card-header {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 30px;
+    display: inline-block;
+    color: white;
+    margin-bottom: 12px;
+}
+
+/* Card Amount - المبلغ */
+.card-amount {
+    font-size: 1.8rem;
     font-weight: 800;
     color: #2d3748;
+    line-height: 1.2;
+    margin: 5px 0;
 }
 
-.history-entry .entry-date {
-    font-size: 0.9rem;
+/* Card Date - التاريخ */
+.card-date {
+    font-size: 0.8rem;
     color: #718096;
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e2e8f0;
 }
 
-.history-entry .entry-date svg {
+.card-date svg {
     width: 14px;
     height: 14px;
     fill: #718096;
 }
 
-/* Member specific hover border */
-.history-entry.anas-entry:hover { border-left-color: #c62828; }
-.history-entry.oussama-entry:hover { border-left-color: #1565c0; }
-.history-entry.amine-entry:hover { border-left-color: #9e6b0c; }
-.history-entry.houssam-entry:hover { border-left-color: #bf5e00; }
-.history-entry.zaki-entry:hover { border-left-color: #2e7d32; }
-.history-entry.mohamed-entry:hover { border-left-color: #6a1b9a; }
+/* Member Colors */
+.header-anas { background: linear-gradient(135deg, #c62828, #b71c1c); }
+.header-oussama { background: linear-gradient(135deg, #1565c0, #0d47a1); }
+.header-amine { background: linear-gradient(135deg, #9e6b0c, #7f5a0a); }
+.header-houssam { background: linear-gradient(135deg, #bf5e00, #9e4d00); }
+.header-zaki { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+.header-mohamed { background: linear-gradient(135deg, #6a1b9a, #4a0072); }
 
 /* Empty state */
-.no-history {
+.no-data-modal {
     text-align: center;
-    padding: 30px;
-    color: #a0aec0;
-    font-style: italic;
-    background: #f7fafc;
-    border-radius: 16px;
+    padding: 60px;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    border-radius: 30px;
+    font-size: 1.2rem;
+}
+
+.no-data-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
 }
 
 /* No data state for table */
@@ -497,36 +452,27 @@ opacity:0.5;
 
 /* Responsive */
 @media (max-width: 768px) {
-    .modal-content {
-        padding: 20px 15px;
+    .header-actions {
+        border-radius: 30px;
+        padding: 15px;
     }
     
-    .modal-header h2 {
-        font-size: 1.8rem;
+    .summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
     
-    .close-modal-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 24px;
-        top: 10px;
-        right: 15px;
-    }
-    
-    .members-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .history-entry {
+    .small-wallet-card {
+        min-width: 140px;
         padding: 12px;
     }
     
-    .history-entry .entry-amount {
-        font-size: 1.2rem;
+    .card-amount {
+        font-size: 1.4rem;
     }
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -540,11 +486,6 @@ opacity:0.5;
     background: rgba(255,255,255,0.3);
     border-radius: 10px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.5);
-}
-
 </style>
 </head>
 <body>
@@ -584,14 +525,14 @@ opacity:0.5;
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
                 <circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/>
             </svg>
-            <span>View Wallet History</span>
+            <span>View Wallet</span>
         </button>
     </div>
 </div>
 
-<h1>💰 Admin Panel · Professional Wallet System</h1>
+<h1>💰 Admin Panel · Wallet Transfer System</h1>
 
-<!-- Main Summary Section (Current Totals) -->
+<!-- Current Totals Section -->
 <div class="summary" id="summaryContainer">
     <div class="box" data-person="anas">
         Anas <span id="anasTotal">0.00</span> <small>MAD</small>
@@ -630,20 +571,18 @@ opacity:0.5;
     </table>
 </div>
 
-<!-- WALLET HISTORY MODAL (Full Screen, Hidden by Default) -->
+<!-- WALLET MODAL - Hidden by default, shows horizontal cards -->
 <div class="wallet-modal" id="walletModal">
     <div class="modal-content">
-        <!-- Close Button X -->
         <button class="close-modal-btn" id="closeModalBtn">&times;</button>
         
         <div class="modal-header">
-            <h2>📦 Wallet History Archive</h2>
-            <p>Complete history of all wallet transactions</p>
+            <h2>📦 Latest Wallet Transfer</h2>
         </div>
         
-        <!-- Members Grid Container -->
-        <div class="members-grid" id="membersGrid">
-            <!-- Will be populated dynamically -->
+        <!-- Horizontal Cards Container -->
+        <div class="horizontal-cards-container" id="walletCardsContainer">
+            <!-- Cards will be inserted here dynamically -->
         </div>
     </div>
 </div>
@@ -748,31 +687,34 @@ db.collection("payments")
 function deleteDoc(id) {
     if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
         db.collection("payments").doc(id).delete()
-            .then(() => console.log("Document deleted"))
+            .then(() => {
+                console.log("Document deleted");
+                // No need to update totals here - onSnapshot will handle it
+            })
             .catch(err => alert("Error: " + err));
     }
 }
 
-// ========== WALLET HISTORY MODAL ==========
+// ========== WALLET MODAL FUNCTIONS ==========
 const walletModal = document.getElementById('walletModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
-const membersGrid = document.getElementById('membersGrid');
+const walletCardsContainer = document.getElementById('walletCardsContainer');
 
-// Close modal when clicking X
+// Close modal
 closeModalBtn.addEventListener('click', function() {
     walletModal.style.display = 'none';
 });
 
-// Close modal when pressing ESC
+// Close with ESC
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape' && walletModal.style.display === 'block') {
         walletModal.style.display = 'none';
     }
 });
 
-// Function to format date nicely
-function formatDisplayDate(timestamp) {
-    if (!timestamp) return 'Unknown date';
+// Format date function
+function formatWalletDate(timestamp) {
+    if (!timestamp) return 'No date';
     
     let date;
     if (timestamp.toDate) {
@@ -781,133 +723,119 @@ function formatDisplayDate(timestamp) {
         date = new Date(timestamp);
     }
     
+    // Format: MM/DD/YYYY, HH:MM AM/PM
     return date.toLocaleString('en-US', { 
-        year: 'numeric', 
         month: '2-digit', 
-        day: '2-digit',
+        day: '2-digit', 
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         hour12: true
     }).replace(',', '');
 }
 
-// Function to load and display all wallet history
-async function loadWalletHistory() {
+// Load and display the LATEST wallet snapshot only
+async function loadLatestWalletSnapshot() {
     try {
-        // Get all snapshots ordered by timestamp (newest first)
+        // Get ONLY the most recent snapshot
         const snapshot = await db.collection("wallet_snapshots")
             .orderBy("timestamp", "desc")
+            .limit(1)
             .get();
         
         if (snapshot.empty) {
-            membersGrid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: rgba(255,255,255,0.9); border-radius: 30px;">
-                    <span style="font-size: 4rem;">📭</span>
-                    <p style="font-size: 1.5rem; color: #666; margin-top: 20px;">No wallet history yet</p>
-                    <p style="color: #999;">Click "Send Wallet" to create your first snapshot</p>
+            walletCardsContainer.innerHTML = `
+                <div class="no-data-modal">
+                    <span class="no-data-icon">📭</span>
+                    No wallet transfers yet<br>
+                    <small style="opacity:0.8">Click "Send Wallet" to create your first transfer</small>
                 </div>
             `;
             return;
         }
         
-        // Group entries by member
-        const memberHistory = {
-            anas: { label: 'Anas', avatarClass: 'avatar-anas', entries: [] },
-            oussama: { label: 'Oussama', avatarClass: 'avatar-oussama', entries: [] },
-            amine: { label: 'Amine', avatarClass: 'avatar-amine', entries: [] },
-            houssam: { label: 'Houssam', avatarClass: 'avatar-houssam', entries: [] },
-            zaki: { label: 'Zaki', avatarClass: 'avatar-zaki', entries: [] },
-            mohamed: { label: 'Mohamed', avatarClass: 'avatar-mohamed', entries: [] }
-        };
+        // Get the latest snapshot data
+        const data = snapshot.docs[0].data();
+        const totals = data.totals || {};
+        const timestamp = data.timestamp;
+        const formattedDate = formatWalletDate(timestamp);
         
-        // Process each snapshot
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const totals = data.totals || {};
-            const timestamp = data.timestamp;
-            const formattedDate = formatDisplayDate(timestamp);
-            
-            // Add entry for each member if they have amount
-            Object.keys(memberHistory).forEach(memberKey => {
-                const amount = totals[memberKey] || 0;
-                if (amount > 0) {
-                    memberHistory[memberKey].entries.push({
-                        amount: amount.toFixed(2),
-                        date: formattedDate,
-                        rawTimestamp: timestamp
-                    });
-                }
-            });
+        // Define members
+        const members = [
+            { key: 'anas', label: 'Anas', headerClass: 'header-anas' },
+            { key: 'oussama', label: 'Oussama', headerClass: 'header-oussama' },
+            { key: 'amine', label: 'Amine', headerClass: 'header-amine' },
+            { key: 'houssam', label: 'Houssam', headerClass: 'header-houssam' },
+            { key: 'zaki', label: 'Zaki', headerClass: 'header-zaki' },
+            { key: 'mohamed', label: 'Mohamed', headerClass: 'header-mohamed' }
+        ];
+        
+        // Build horizontal cards
+        let cardsHTML = '';
+        let hasAnyAmount = false;
+        
+        members.forEach(member => {
+            const amount = totals[member.key] || 0;
+            if (amount > 0) {
+                hasAnyAmount = true;
+                cardsHTML += `
+                    <div class="small-wallet-card">
+                        <div class="card-header ${member.headerClass}">${member.label}</div>
+                        <div class="card-amount">${amount.toFixed(2)} MAD</div>
+                        <div class="card-date">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.1.8-1.2-4.5-2.7V7z"/>
+                            </svg>
+                            ${formattedDate}
+                        </div>
+                    </div>
+                `;
+            }
         });
         
-        // Build the HTML grid
-        let gridHTML = '';
-        
-        Object.keys(memberHistory).forEach(memberKey => {
-            const member = memberHistory[memberKey];
-            const entries = member.entries;
-            
-            let entriesHTML = '';
-            if (entries.length === 0) {
-                entriesHTML = `<div class="no-history">No history entries</div>`;
-            } else {
-                entries.forEach(entry => {
-                    entriesHTML += `
-                        <div class="history-entry ${memberKey}-entry">
-                            <span class="entry-amount">${entry.amount} MAD</span>
-                            <span class="entry-date">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.1.8-1.2-4.5-2.7V7z"/>
-                                </svg>
-                                ${entry.date}
-                            </span>
-                        </div>
-                    `;
-                });
-            }
-            
-            gridHTML += `
-                <div class="member-history-card">
-                    <div class="member-header">
-                        <div class="member-avatar ${member.avatarClass}">
-                            ${member.label.charAt(0)}
-                        </div>
-                        <span class="member-name">${member.label}</span>
-                    </div>
-                    <div class="history-entries">
-                        ${entriesHTML}
-                    </div>
+        // If no amounts at all (all zero), show message
+        if (!hasAnyAmount) {
+            cardsHTML = `
+                <div class="no-data-modal">
+                    <span class="no-data-icon">📭</span>
+                    All amounts are zero in the latest transfer
                 </div>
             `;
-        });
+        }
         
-        membersGrid.innerHTML = gridHTML;
+        walletCardsContainer.innerHTML = cardsHTML;
         
     } catch (error) {
-        console.error("Error loading wallet history: ", error);
-        membersGrid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: rgba(255,255,255,0.9); border-radius: 30px;">
-                <span style="font-size: 4rem;">❌</span>
-                <p style="font-size: 1.5rem; color: #666; margin-top: 20px;">Error loading history</p>
-                <p style="color: #999;">${error.message}</p>
+        console.error("Error loading wallet snapshot: ", error);
+        walletCardsContainer.innerHTML = `
+            <div class="no-data-modal">
+                <span class="no-data-icon">❌</span>
+                Error loading wallet data<br>
+                <small>${error.message}</small>
             </div>
         `;
     }
 }
 
-// ========== SEND WALLET FUNCTION ==========
+// ========== SEND WALLET - CORRECTED VERSION ==========
 const sendBtn = document.getElementById('sendWalletBtn');
 const viewBtn = document.getElementById('viewWalletBtn');
 
 sendBtn.addEventListener('click', async function() {
     // Save current totals to Firebase
     const totalsToSave = { ...currentTotals };
-    const now = new Date();
+    
+    // Don't save if all totals are zero (optional)
+    const hasNonZero = Object.values(totalsToSave).some(val => val > 0);
+    if (!hasNonZero) {
+        alert('No amounts to send. All totals are zero.');
+        return;
+    }
     
     const walletData = {
         totals: totalsToSave,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt: now.toISOString()
+        createdAt: new Date().toISOString()
     };
     
     try {
@@ -917,17 +845,23 @@ sendBtn.addEventListener('click', async function() {
         // Save to Firebase
         await db.collection("wallet_snapshots").add(walletData);
         
-        // Show success message
+        // Show success
         sendBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm2-4h12v2H6V2zm16 7H2v12h20V9zm-4 7h-4v-2h4v2z"/><circle cx="18" cy="16" r="2" fill="white" opacity="0.3"/></svg> Sent ✓`;
         
-        // Reset button after 1.5 seconds
+        // IMPORTANT: Delete all payment records to clear totals
+        // This is the key step to make totals go to zero
+        const paymentsSnapshot = await db.collection("payments").get();
+        const batch = db.batch();
+        paymentsSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+        
+        // Reset button after 2 seconds
         setTimeout(() => {
             sendBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm2-4h12v2H6V2zm16 7H2v12h20V9zm-4 7h-4v-2h4v2z"/><circle cx="18" cy="16" r="2" fill="white" opacity="0.3"/></svg> Send Wallet`;
             sendBtn.disabled = false;
-        }, 1500);
-        
-        // Note: We don't clear totals here - they are automatically recalculated
-        // by the onSnapshot listener based on the payments collection
+        }, 2000);
         
     } catch (error) {
         console.error("Error saving wallet snapshot: ", error);
@@ -937,23 +871,23 @@ sendBtn.addEventListener('click', async function() {
     }
 });
 
-// View wallet - Open modal and load history
+// View wallet - Open modal and load LATEST snapshot only
 viewBtn.addEventListener('click', async function() {
     try {
         viewBtn.innerHTML = `<span>⏳</span> Loading...`;
         viewBtn.disabled = true;
         
-        await loadWalletHistory();
+        await loadLatestWalletSnapshot();
         walletModal.style.display = 'block';
         
         setTimeout(() => {
-            viewBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/></svg> View Wallet History`;
+            viewBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/></svg> View Wallet`;
             viewBtn.disabled = false;
         }, 800);
     } catch (error) {
-        console.error("Error loading history: ", error);
-        alert("Could not load wallet history.");
-        viewBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/></svg> View Wallet History`;
+        console.error("Error:", error);
+        alert("Could not load wallet.");
+        viewBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><circle cx="12" cy="12" r="2.5" fill="white" opacity="0.5"/></svg> View Wallet`;
         viewBtn.disabled = false;
     }
 });
