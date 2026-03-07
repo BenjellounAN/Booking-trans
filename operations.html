@@ -314,7 +314,6 @@ body {
     white-space: nowrap;
     color: rgba(255,255,255,0.9);
     cursor: help;
-    position: relative;
 }
 
 .description-cell:hover {
@@ -633,12 +632,29 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// Check authentication
-if (sessionStorage.getItem('isAuthenticated') !== 'true') {
-    window.location.href = 'login.html';
+// ========== التحقق من المصادقة ==========
+// التحقق مما إذا كان المستخدم قد سجل الدخول عبر صفحة login.html
+function checkAuthentication() {
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+    const loginTime = sessionStorage.getItem('loginTime');
+    const currentTime = new Date().getTime();
+    
+    // التحقق من وجود جلسة صالحة (أقل من 8 ساعات)
+    if (isAuthenticated !== 'true' || !loginTime || (currentTime - parseInt(loginTime)) > 8 * 60 * 60 * 1000) {
+        // إذا لم يكن هناك جلسة صالحة، إعادة التوجيه إلى صفحة تسجيل الدخول
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
 }
 
-// Firebase config
+// تنفيذ التحقق فوراً
+if (!checkAuthentication()) {
+    // إيقاف تنفيذ باقي الكود إذا لم يكن المستخدم مصادقاً
+    throw new Error('Authentication required');
+}
+
+// ========== تهيئة Firebase ==========
 const firebaseConfig = {
     apiKey: "AIzaSyCh8ssk6K7_LXDPpG3X85Z7VlUwDa_0_Og",
     authDomain: "deliverymarrakech.firebaseapp.com",
@@ -651,20 +667,20 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Global variables
+// ========== المتغيرات العامة ==========
 let allOperations = [];
 let filteredOps = [];
 let currentPage = 1;
 let itemsPerPage = 15;
 
-// Constants
+// الثوابت
 const managers = ['anas', 'oussama', 'amine'];
 const workers = ['houssam', 'zaki', 'mohamed'];
 
-// Cache for payment data - نستخدم هذا للحفاظ على البيانات الأصلية
+// كاش لبيانات الدفعات
 const paymentCache = new Map();
 
-// DOM elements
+// ========== عناصر DOM ==========
 const tableBody = document.getElementById('tableBody');
 const typeFilter = document.getElementById('typeFilter');
 const personFilter = document.getElementById('personFilter');
@@ -673,7 +689,7 @@ const itemsPerPageSelect = document.getElementById('itemsPerPage');
 const clearFiltersBtn = document.getElementById('clearFilters');
 const paginationDiv = document.getElementById('pagination');
 
-// Stats elements
+// عناصر الإحصائيات
 const totalOpsSpan = document.getElementById('totalOps');
 const totalAmountSpan = document.getElementById('totalAmount');
 const totalPaymentsSpan = document.getElementById('totalPayments');
@@ -689,7 +705,7 @@ const houssamTotalSpan = document.getElementById('houssamTotal');
 const zakiTotalSpan = document.getElementById('zakiTotal');
 const mohamedTotalSpan = document.getElementById('mohamedTotal');
 
-// Helper functions
+// ========== الدوال المساعدة ==========
 function formatDate(timestamp) {
     if (!timestamp) return '-';
     try {
@@ -720,15 +736,15 @@ function getTypeInfo(status) {
     }
 }
 
-// Load all data
+// ========== تحميل البيانات ==========
 async function loadData() {
     try {
-        // أولاً: تحميل جميع الدفعات (payments) وبناء الكاش
+        // تحميل الدفعات
         const paymentsSnap = await db.collection("payments")
             .orderBy("time", "desc")
             .get();
         
-        // بناء الكاش مع جميع البيانات الأصلية
+        // بناء الكاش
         paymentsSnap.forEach(doc => {
             const data = doc.data();
             paymentCache.set(doc.id, {
@@ -741,15 +757,15 @@ async function loadData() {
             });
         });
         
-        // ثانياً: تحميل جميع التحويلات (wallet_entries)
+        // تحميل التحويلات
         const walletSnap = await db.collection("wallet_entries")
             .orderBy("timestamp", "desc")
             .get();
         
-        // دمج جميع العمليات
+        // دمج العمليات
         allOperations = [];
         
-        // إضافة الدفعات (payments)
+        // إضافة الدفعات
         paymentsSnap.forEach(doc => {
             const data = doc.data();
             allOperations.push({
@@ -759,24 +775,24 @@ async function loadData() {
                 sender: data.name1,
                 receiver: data.name2,
                 amount: parseFloat(data.price) || 0,
-                description: data.description || '-', // الوصف الأصلي من index.html
+                description: data.description || '-',
                 timestamp: data.time,
                 date: formatDate(data.time),
-                status: 'atwork' // الحالة الافتراضية للدفعات
+                status: 'atwork'
             });
         });
         
-        // إضافة التحويلات (wallet_entries) مع الحفاظ على الوصف الأصلي
+        // إضافة التحويلات
         walletSnap.forEach(doc => {
             const data = doc.data();
             
-            // البحث عن البيانات الأصلية إذا كان هناك originalPaymentId
+            // البحث عن البيانات الأصلية
             let originalData = null;
             if (data.originalPaymentId && paymentCache.has(data.originalPaymentId)) {
                 originalData = paymentCache.get(data.originalPaymentId);
             }
             
-            // استخدام البيانات الأصلية إذا وجدت، وإلا استخدام البيانات الجديدة
+            // استخدام البيانات الأصلية
             const sender = originalData ? originalData.sender : (data.name1 || 'System');
             const receiver = originalData ? originalData.receiver : (data.name2 || data.member || 'Unknown');
             const description = originalData ? originalData.description : (data.description || 'Transfer');
@@ -788,15 +804,15 @@ async function loadData() {
                 sender: sender,
                 receiver: receiver,
                 amount: data.amount || 0,
-                description: description, // الوصف الأصلي من الدفعة
+                description: description,
                 timestamp: data.timestamp,
                 date: formatDate(data.timestamp),
                 status: data.status || 'paid',
-                originalPaymentId: data.originalPaymentId // حفظ المرجع
+                originalPaymentId: data.originalPaymentId
             });
         });
         
-        // ترتيب العمليات حسب الوقت (الأحدث أولاً)
+        // ترتيب العمليات
         allOperations.sort((a, b) => {
             const ta = a.timestamp?.seconds || 0;
             const tb = b.timestamp?.seconds || 0;
@@ -812,38 +828,32 @@ async function loadData() {
     }
 }
 
-// مستمع للتحديثات المباشرة
+// ========== مستمع للتحديثات المباشرة ==========
 function setupListener() {
     db.collection("wallet_entries").onSnapshot((snapshot) => {
         snapshot.docChanges().forEach((change) => {
             const docId = change.doc.id;
             const newData = change.doc.data();
             
-            // البحث عن العملية في المصفوفة
             const index = allOperations.findIndex(op => op.id === docId && op.collection === 'wallet_entries');
             
             if (index !== -1) {
-                // تحديث عملية موجودة
                 if (change.type === 'modified') {
-                    // البحث عن البيانات الأصلية
                     let originalData = null;
                     if (allOperations[index].originalPaymentId && paymentCache.has(allOperations[index].originalPaymentId)) {
                         originalData = paymentCache.get(allOperations[index].originalPaymentId);
                     }
                     
-                    // تحديث الحالة فقط، مع الحفاظ على جميع البيانات الأخرى
                     allOperations[index] = {
                         ...allOperations[index],
                         status: newData.status || allOperations[index].status,
-                        // التأكد من بقاء البيانات الأصلية
                         sender: originalData ? originalData.sender : allOperations[index].sender,
                         receiver: originalData ? originalData.receiver : allOperations[index].receiver,
                         description: originalData ? originalData.description : allOperations[index].description,
-                        amount: allOperations[index].amount // الحفاظ على المبلغ الأصلي
+                        amount: allOperations[index].amount
                     };
                 }
             } else if (change.type === 'added') {
-                // إضافة عملية جديدة
                 let originalData = null;
                 if (newData.originalPaymentId && paymentCache.has(newData.originalPaymentId)) {
                     originalData = paymentCache.get(newData.originalPaymentId);
@@ -860,14 +870,13 @@ function setupListener() {
                     sender: sender,
                     receiver: receiver,
                     amount: newData.amount || 0,
-                    description: description, // الوصف الأصلي
+                    description: description,
                     timestamp: newData.timestamp,
                     date: formatDate(newData.timestamp),
                     status: newData.status || 'paid',
                     originalPaymentId: newData.originalPaymentId
                 });
                 
-                // إعادة الترتيب
                 allOperations.sort((a, b) => {
                     const ta = a.timestamp?.seconds || 0;
                     const tb = b.timestamp?.seconds || 0;
@@ -875,7 +884,6 @@ function setupListener() {
                 });
             }
             
-            // إعادة تطبيق الفلاتر
             applyFilters();
         });
     }, (error) => {
@@ -883,14 +891,13 @@ function setupListener() {
     });
 }
 
-// تطبيق الفلاتر
+// ========== تطبيق الفلاتر ==========
 function applyFilters() {
     const type = typeFilter.value;
     const person = personFilter.value.toLowerCase();
     const search = searchInput.value.toLowerCase();
     
     filteredOps = allOperations.filter(op => {
-        // فلتر النوع
         if (type !== 'all') {
             if (type === 'atwork' && op.status !== 'atwork') return false;
             if (type === 'paid' && op.status !== 'paid') return false;
@@ -898,14 +905,12 @@ function applyFilters() {
             if (type === 'transfer' && op.type !== 'transfer') return false;
         }
         
-        // فلتر الشخص
         if (person !== 'all') {
             const sender = op.sender?.toLowerCase() || '';
             const receiver = op.receiver?.toLowerCase() || '';
             if (sender !== person && receiver !== person) return false;
         }
         
-        // فلتر البحث
         if (search) {
             const desc = op.description?.toLowerCase() || '';
             const sender = op.sender?.toLowerCase() || '';
@@ -923,7 +928,7 @@ function applyFilters() {
     renderTable();
 }
 
-// تحديث الإحصائيات
+// ========== تحديث الإحصائيات ==========
 function updateStats() {
     const totals = {
         anas: 0, oussama: 0, amine: 0,
@@ -966,7 +971,7 @@ function updateStats() {
     mohamedTotalSpan.textContent = totals.mohamed.toFixed(2);
 }
 
-// عرض الجدول
+// ========== عرض الجدول ==========
 function renderTable() {
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
@@ -1013,7 +1018,7 @@ function renderTable() {
     renderPagination();
 }
 
-// عرض أرقام الصفحات
+// ========== عرض أرقام الصفحات ==========
 function renderPagination() {
     const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (totalPages <= 1) {
@@ -1036,7 +1041,7 @@ function renderPagination() {
     paginationDiv.innerHTML = pages;
 }
 
-// تغيير الصفحة
+// ========== تغيير الصفحة ==========
 function changePage(page) {
     const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (page < 1 || page > totalPages) return;
@@ -1045,20 +1050,20 @@ function changePage(page) {
     document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth' });
 }
 
-// حذف عملية
+// ========== حذف عملية ==========
 async function deleteOp(id, collection) {
     if (!confirm('Delete this operation?')) return;
     
     try {
         await db.collection(collection).doc(id).delete();
-        await loadData(); // إعادة تحميل البيانات بعد الحذف
+        await loadData();
     } catch (error) {
         console.error("Delete error:", error);
         alert("Delete failed");
     }
 }
 
-// تصدير إلى CSV
+// ========== تصدير إلى CSV ==========
 function exportToCSV() {
     if (filteredOps.length === 0) {
         alert('No data to export');
@@ -1077,7 +1082,7 @@ function exportToCSV() {
     link.click();
 }
 
-// عرض الخطأ
+// ========== عرض الخطأ ==========
 function showError(msg) {
     tableBody.innerHTML = `
         <tr>
@@ -1091,7 +1096,7 @@ function showError(msg) {
     `;
 }
 
-// Event listeners
+// ========== مستمعات الأحداث ==========
 typeFilter.addEventListener('change', applyFilters);
 personFilter.addEventListener('change', applyFilters);
 searchInput.addEventListener('input', applyFilters);
@@ -1108,11 +1113,11 @@ clearFiltersBtn.addEventListener('click', () => {
     applyFilters();
 });
 
-// Initialize
+// ========== بدء التطبيق ==========
 loadData();
 setupListener();
 
-// Make functions global
+// ========== دوال عامة ==========
 window.deleteOp = deleteOp;
 window.changePage = changePage;
 window.exportToCSV = exportToCSV;
