@@ -132,17 +132,6 @@ body {
     justify-content: space-between;
 }
 
-/* Managers and Workers badges */
-.manager-badge {
-    background: rgba(255, 215, 0, 0.2);
-    border: 1px solid gold;
-}
-
-.worker-badge {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-}
-
 /* Filters */
 .filters-section {
     background: rgba(255,255,255,0.1);
@@ -262,7 +251,6 @@ body {
     text-transform: capitalize;
 }
 
-/* Role-specific styles */
 .person-manager {
     background: rgba(255, 215, 0, 0.2);
     border: 1px solid gold;
@@ -299,12 +287,6 @@ body {
     border: 1px solid #2196f3;
 }
 
-.type-transfer {
-    background: rgba(76, 175, 80, 0.3);
-    color: #c8e6c9;
-    border: 1px solid #4caf50;
-}
-
 .type-at-work {
     background: rgba(255, 152, 0, 0.3);
     color: #ffe0b2;
@@ -331,6 +313,17 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: rgba(255,255,255,0.9);
+}
+
+.description-cell:hover {
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+    background: rgba(0,0,0,0.8);
+    border-radius: 8px;
+    padding: 8px;
+    position: relative;
+    z-index: 100;
 }
 
 /* No Data */
@@ -428,57 +421,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Tooltip for full description */
-.description-cell {
-    position: relative;
-    cursor: help;
-}
-
-.description-cell:hover::after {
-    content: attr(data-full);
-    position: absolute;
-    background: rgba(0,0,0,0.9);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 13px;
-    white-space: normal;
-    max-width: 300px;
-    word-wrap: break-word;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.2);
-    pointer-events: none;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    .filters-section {
-        flex-direction: column;
-    }
-    
-    .filter-select, .search-box {
-        width: 100%;
-    }
-    
-    .stats-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .operations-table {
-        min-width: 1000px;
-    }
-}
-
 /* Export button */
 .export-btn {
     background: rgba(76, 175, 80, 0.3);
@@ -516,6 +458,31 @@ body {
     margin-left: 15px;
     cursor: pointer;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .filters-section {
+        flex-direction: column;
+    }
+    
+    .filter-select, .search-box {
+        width: 100%;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .operations-table {
+        min-width: 1000px;
+    }
+}
 </style>
 </head>
 <body>
@@ -529,20 +496,20 @@ body {
                 <circle cx="12" cy="15" r="2"/>
                 <path d="M7 12h10v2H7z"/>
             </svg>
-            Delivery Workers Transfer System
+            Delivery Operations
         </h1>
         <div style="display: flex; gap: 15px;">
             <button class="export-btn" onclick="exportToCSV()">
                 <svg viewBox="0 0 24 24">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                 </svg>
-                Export Excel
+                Export
             </button>
             <button class="back-btn" onclick="window.location.href='admin.html'">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
-                Back to Admin
+                Back
             </button>
         </div>
     </div>
@@ -550,84 +517,77 @@ body {
     <!-- Stats Cards -->
     <div class="stats-container" id="statsContainer">
         <div class="stat-card">
-            <div class="stat-label">📊 Total Operations</div>
+            <div class="stat-label">📊 Total</div>
             <div class="stat-value" id="totalOps">0</div>
             <div class="stat-detail">
-                <span>Payments: <span id="totalPayments">0</span></span>
-                <span>Transfers: <span id="totalTransfers">0</span></span>
+                <span>Pay: <span id="totalPayments">0</span></span>
+                <span>Trans: <span id="totalTransfers">0</span></span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">💰 Total Amount</div>
-            <div class="stat-value" id="totalAmount">0.00 <span class="stat-unit">MAD</span></div>
+            <div class="stat-label">💰 Amount</div>
+            <div class="stat-value" id="totalAmount">0.00</div>
             <div class="stat-detail">
-                <span>Managers: <span id="managersTotal">0.00</span></span>
-                <span>Workers: <span id="workersTotal">0.00</span></span>
+                <span>Mng: <span id="managersTotal">0</span></span>
+                <span>Wrk: <span id="workersTotal">0</span></span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">👥 Managers (Anas, Oussama, Amine)</div>
+            <div class="stat-label">👥 Managers</div>
             <div class="stat-value" id="managersCount">0</div>
             <div class="stat-detail" id="managersDetail">
-                <span>Anas: <span id="anasTotal">0</span></span>
-                <span>Oussama: <span id="oussamaTotal">0</span></span>
-                <span>Amine: <span id="amineTotal">0</span></span>
+                <span>A: <span id="anasTotal">0</span></span>
+                <span>O: <span id="oussamaTotal">0</span></span>
+                <span>Am: <span id="amineTotal">0</span></span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">👷 Workers (Houssam, Zaki, Mohamed)</div>
+            <div class="stat-label">👷 Workers</div>
             <div class="stat-value" id="workersCount">0</div>
             <div class="stat-detail" id="workersDetail">
-                <span>Houssam: <span id="houssamTotal">0</span></span>
-                <span>Zaki: <span id="zakiTotal">0</span></span>
-                <span>Mohamed: <span id="mohamedTotal">0</span></span>
+                <span>H: <span id="houssamTotal">0</span></span>
+                <span>Z: <span id="zakiTotal">0</span></span>
+                <span>M: <span id="mohamedTotal">0</span></span>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
     <div class="filters-section">
-        <span class="filter-label">Filter by:</span>
+        <span class="filter-label">Filter:</span>
         
         <select class="filter-select" id="typeFilter">
-            <option value="all">All Operations</option>
-            <option value="payment">Payments Only</option>
-            <option value="transfer">Transfers Only</option>
-            <option value="atwork">At Work Only</option>
-            <option value="paid">Paid Only</option>
+            <option value="all">All</option>
+            <option value="payment">Payments</option>
+            <option value="transfer">Transfers</option>
+            <option value="atwork">At Work</option>
+            <option value="paid">Paid</option>
         </select>
         
         <select class="filter-select" id="personFilter">
             <option value="all">All Persons</option>
             <optgroup label="Managers">
-                <option value="anas">Anas (Manager)</option>
-                <option value="oussama">Oussama (Manager)</option>
-                <option value="amine">Amine (Manager)</option>
+                <option value="anas">Anas</option>
+                <option value="oussama">Oussama</option>
+                <option value="amine">Amine</option>
             </optgroup>
             <optgroup label="Workers">
-                <option value="houssam">Houssam (Worker)</option>
-                <option value="zaki">Zaki (Worker)</option>
-                <option value="mohamed">Mohamed (Worker)</option>
+                <option value="houssam">Houssam</option>
+                <option value="zaki">Zaki</option>
+                <option value="mohamed">Mohamed</option>
             </optgroup>
         </select>
         
-        <select class="filter-select" id="directionFilter">
-            <option value="all">All Directions</option>
-            <option value="manager_to_worker">Manager → Worker</option>
-            <option value="worker_to_manager">Worker → Manager</option>
-            <option value="manager_to_manager">Manager → Manager</option>
-        </select>
-        
-        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search in description or names...">
+        <input type="text" class="search-box" id="searchInput" placeholder="Search...">
         
         <select class="items-per-page" id="itemsPerPage">
-            <option value="15">15 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
-            <option value="100">100 per page</option>
+            <option value="15">15</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
         </select>
         
-        <button class="clear-filters" id="clearFilters">Clear Filters</button>
+        <button class="clear-filters" id="clearFilters">Clear</button>
     </div>
 
     <!-- Operations Table -->
@@ -639,10 +599,10 @@ body {
                     <th>Sender</th>
                     <th></th>
                     <th>Receiver</th>
-                    <th>Amount (MAD)</th>
+                    <th>Amount</th>
                     <th>Description</th>
-                    <th>Date & Time</th>
-                    <th>Actions</th>
+                    <th>Date</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -650,7 +610,7 @@ body {
                     <td colspan="8">
                         <div class="loading">
                             <div class="loading-spinner"></div>
-                            Loading operations...
+                            Loading...
                         </div>
                     </td>
                 </tr>
@@ -672,14 +632,14 @@ if (sessionStorage.getItem('isAuthenticated') !== 'true') {
     window.location.href = 'login.html';
 }
 
+// Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyCh8ssk6K7_LXDPpG3X85Z7VlUwDa_0_Og",
     authDomain: "deliverymarrakech.firebaseapp.com",
     projectId: "deliverymarrakech",
     storageBucket: "deliverymarrakech.firebasestorage.app",
     messagingSenderId: "543072772322",
-    appId: "1:543072772322:web:468d0c047e06c86bde7ebb",
-    measurementId: "G-YMXBJFJ9N8"
+    appId: "1:543072772322:web:468d0c047e06c86bde7ebb"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -687,22 +647,21 @@ const db = firebase.firestore();
 
 // Global variables
 let allOperations = [];
-let filteredOperations = [];
+let filteredOps = [];
 let currentPage = 1;
 let itemsPerPage = 15;
 
-// Managers and workers lists
+// Constants
 const managers = ['anas', 'oussama', 'amine'];
 const workers = ['houssam', 'zaki', 'mohamed'];
 
-// Store original payment data for reference
-let originalPaymentsData = {};
+// Cache for payment data
+const paymentCache = new Map();
 
 // DOM elements
 const tableBody = document.getElementById('tableBody');
 const typeFilter = document.getElementById('typeFilter');
 const personFilter = document.getElementById('personFilter');
-const directionFilter = document.getElementById('directionFilter');
 const searchInput = document.getElementById('searchInput');
 const itemsPerPageSelect = document.getElementById('itemsPerPage');
 const clearFiltersBtn = document.getElementById('clearFilters');
@@ -724,117 +683,92 @@ const houssamTotalSpan = document.getElementById('houssamTotal');
 const zakiTotalSpan = document.getElementById('zakiTotal');
 const mohamedTotalSpan = document.getElementById('mohamedTotal');
 
-// Format date function
+// Helper functions
 function formatDate(timestamp) {
-    if (!timestamp) return 'No date';
-    
-    let date;
-    if (timestamp.toDate) {
-        date = timestamp.toDate();
-    } else {
-        date = new Date(timestamp);
-    }
-    
-    return date.toLocaleString('en-US', { 
-        year: 'numeric',
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
-}
-
-// Get person role class
-function getPersonRoleClass(personName) {
-    if (!personName) return 'person-worker';
-    const name = personName.toLowerCase();
-    if (managers.includes(name)) return 'person-manager';
-    return 'person-worker';
-}
-
-// Get type badge class based on operation status
-function getTypeBadgeClass(status) {
-    if (status === 'paid') {
-        return 'type-paid';
-    } else if (status === 'atwork') {
-        return 'type-at-work';
-    } else {
-        return 'type-transfer';
-    }
-}
-
-// Get type display text
-function getTypeDisplayText(status) {
-    if (status === 'paid') {
-        return '💰 Paid';
-    } else if (status === 'atwork') {
-        return '⚙️ At Work';
-    } else {
-        return '📦 Transfer';
-    }
-}
-
-// Load all operations
-async function loadAllOperations() {
+    if (!timestamp) return '-';
     try {
-        // Load payments
-        const paymentsSnapshot = await db.collection("payments")
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
+        return '-';
+    }
+}
+
+function getPersonClass(person) {
+    if (!person) return 'person-worker';
+    return managers.includes(person.toLowerCase()) ? 'person-manager' : 'person-worker';
+}
+
+function getTypeInfo(status) {
+    if (status === 'paid') {
+        return { class: 'type-paid', text: 'Paid' };
+    } else if (status === 'atwork') {
+        return { class: 'type-at-work', text: 'At Work' };
+    } else {
+        return { class: 'type-payment', text: 'Payment' };
+    }
+}
+
+// Load data
+async function loadData() {
+    try {
+        // Load payments first to build cache
+        const paymentsSnap = await db.collection("payments")
             .orderBy("time", "desc")
             .get();
         
-        // Load transfers (wallet_entries)
-        const transfersSnapshot = await db.collection("wallet_entries")
-            .orderBy("timestamp", "desc")
-            .get();
-        
-        allOperations = [];
-        originalPaymentsData = {};
-        
-        // Process payments
-        paymentsSnapshot.forEach(doc => {
+        // Build payment cache
+        paymentsSnap.forEach(doc => {
             const data = doc.data();
-            const price = parseFloat(data.price) || 0;
-            
-            // Store original payment data
-            originalPaymentsData[doc.id] = {
+            paymentCache.set(doc.id, {
                 sender: data.name1,
                 receiver: data.name2,
                 description: data.description || '-',
-                amount: price
-            };
-            
+                amount: parseFloat(data.price) || 0
+            });
+        });
+        
+        // Load wallet entries
+        const walletSnap = await db.collection("wallet_entries")
+            .orderBy("timestamp", "desc")
+            .get();
+        
+        // Combine operations
+        allOperations = [];
+        
+        // Add payments
+        paymentsSnap.forEach(doc => {
+            const data = doc.data();
             allOperations.push({
                 id: doc.id,
                 type: 'payment',
                 collection: 'payments',
                 sender: data.name1,
                 receiver: data.name2,
-                amount: price,
+                amount: parseFloat(data.price) || 0,
                 description: data.description || '-',
                 timestamp: data.time,
                 date: formatDate(data.time),
-                status: 'atwork', // Default status for payments is "At work"
-                rawData: data
+                status: 'atwork'
             });
         });
         
-        // Process transfers (wallet_entries)
-        transfersSnapshot.forEach(doc => {
+        // Add wallet entries
+        walletSnap.forEach(doc => {
             const data = doc.data();
             
-            // For wallet entries, we need to preserve the original sender and description
-            // If the entry came from a payment, it should have name1 and name2
-            // If not, use the member field as receiver and set sender based on context
-            
+            // Try to get original payment data
             let sender = data.name1;
             let receiver = data.name2 || data.member;
             let description = data.description;
             
-            // If this wallet entry was created from a payment, use the original payment data
-            if (data.originalPaymentId && originalPaymentsData[data.originalPaymentId]) {
-                const original = originalPaymentsData[data.originalPaymentId];
+            if (data.originalPaymentId && paymentCache.has(data.originalPaymentId)) {
+                const original = paymentCache.get(data.originalPaymentId);
                 sender = original.sender;
                 receiver = original.receiver;
                 description = original.description;
@@ -850,109 +784,75 @@ async function loadAllOperations() {
                 description: description || 'Transfer',
                 timestamp: data.timestamp,
                 date: formatDate(data.timestamp),
-                status: data.status || 'paid', // If status exists, use it, otherwise default to "paid"
-                originalPaymentId: data.originalPaymentId, // Store reference to original payment
-                rawData: data
+                status: data.status || 'paid'
             });
         });
         
-        // Sort by timestamp (newest first)
+        // Sort by timestamp
         allOperations.sort((a, b) => {
-            const timeA = a.timestamp?.seconds || 0;
-            const timeB = b.timestamp?.seconds || 0;
-            return timeB - timeA;
+            const ta = a.timestamp?.seconds || 0;
+            const tb = b.timestamp?.seconds || 0;
+            return tb - ta;
         });
         
-        // Apply filters
         applyFilters();
         
-        // Listen for real-time updates to wallet_entries (to catch status changes)
-        setupRealtimeListener();
-        
     } catch (error) {
-        console.error("Error loading operations:", error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    <div class="no-data-ops">
-                        <div class="no-data-icon">❌</div>
-                        Error loading operations<br>
-                        <small>${error.message}</small>
-                    </div>
-                </td>
-            </tr>
-        `;
+        console.error("Error:", error);
+        showError(error.message);
     }
 }
 
-// Set up real-time listener for wallet_entries to update status when changed in admin
-function setupRealtimeListener() {
+// Set up real-time listener
+function setupListener() {
     db.collection("wallet_entries").onSnapshot((snapshot) => {
         snapshot.docChanges().forEach((change) => {
-            if (change.type === "modified") {
-                // When a document is modified in admin (status changed from atwork to paid)
-                const updatedData = change.doc.data();
-                
-                // Find and update the operation in allOperations
-                const operationIndex = allOperations.findIndex(op => op.id === change.doc.id && op.collection === 'wallet_entries');
-                if (operationIndex !== -1) {
-                    // Get the existing operation to preserve data
-                    const existingOp = allOperations[operationIndex];
-                    
-                    // Update only the status, preserve all other data
-                    allOperations[operationIndex] = {
-                        ...existingOp,
-                        status: updatedData.status || existingOp.status,
-                        // Make sure we don't lose sender/receiver/description
-                        sender: existingOp.sender,
-                        receiver: existingOp.receiver,
-                        description: existingOp.description,
-                        amount: existingOp.amount
-                    };
-                    
-                    // Re-apply filters and re-render
-                    applyFilters();
+            const docId = change.doc.id;
+            const newData = change.doc.data();
+            
+            const index = allOperations.findIndex(op => op.id === docId && op.collection === 'wallet_entries');
+            
+            if (index !== -1) {
+                // Update existing entry - ONLY change the status
+                if (change.type === 'modified') {
+                    allOperations[index].status = newData.status || allOperations[index].status;
                 }
-            } else if (change.type === "added") {
-                // New transfer added - we need to get the original payment data if available
-                const newData = change.doc.data();
+            } else if (change.type === 'added') {
+                // Add new entry with correct data
+                let sender = newData.name1;
+                let receiver = newData.name2 || newData.member;
+                let description = newData.description;
                 
-                // Check if this new entry has an originalPaymentId
-                if (newData.originalPaymentId && originalPaymentsData[newData.originalPaymentId]) {
-                    const original = originalPaymentsData[newData.originalPaymentId];
-                    
-                    // Add to allOperations with the correct data
-                    allOperations.push({
-                        id: change.doc.id,
-                        type: 'transfer',
-                        collection: 'wallet_entries',
-                        sender: original.sender,
-                        receiver: original.receiver,
-                        amount: newData.amount || 0,
-                        description: original.description,
-                        timestamp: newData.timestamp,
-                        date: formatDate(newData.timestamp),
-                        status: newData.status || 'paid',
-                        originalPaymentId: newData.originalPaymentId,
-                        rawData: newData
-                    });
-                    
-                    // Re-sort and re-render
-                    allOperations.sort((a, b) => {
-                        const timeA = a.timestamp?.seconds || 0;
-                        const timeB = b.timestamp?.seconds || 0;
-                        return timeB - timeA;
-                    });
-                    
-                    applyFilters();
-                } else {
-                    // If no original payment data, reload all to be safe
-                    loadAllOperations();
+                if (newData.originalPaymentId && paymentCache.has(newData.originalPaymentId)) {
+                    const original = paymentCache.get(newData.originalPaymentId);
+                    sender = original.sender;
+                    receiver = original.receiver;
+                    description = original.description;
                 }
+                
+                allOperations.push({
+                    id: docId,
+                    type: 'transfer',
+                    collection: 'wallet_entries',
+                    sender: sender || 'System',
+                    receiver: receiver || 'Unknown',
+                    amount: newData.amount || 0,
+                    description: description || 'Transfer',
+                    timestamp: newData.timestamp,
+                    date: formatDate(newData.timestamp),
+                    status: newData.status || 'paid'
+                });
+                
+                // Re-sort
+                allOperations.sort((a, b) => {
+                    const ta = a.timestamp?.seconds || 0;
+                    const tb = b.timestamp?.seconds || 0;
+                    return tb - ta;
+                });
             }
+            
+            applyFilters();
         });
-    }, (error) => {
-        console.error("Listener error:", error);
     });
 }
 
@@ -960,11 +860,10 @@ function setupRealtimeListener() {
 function applyFilters() {
     const type = typeFilter.value;
     const person = personFilter.value.toLowerCase();
-    const direction = directionFilter.value;
     const search = searchInput.value.toLowerCase();
     
-    filteredOperations = allOperations.filter(op => {
-        // Type filter - now includes atwork and paid
+    filteredOps = allOperations.filter(op => {
+        // Type filter
         if (type !== 'all') {
             if (type === 'atwork' && op.status !== 'atwork') return false;
             if (type === 'paid' && op.status !== 'paid') return false;
@@ -979,117 +878,80 @@ function applyFilters() {
             if (sender !== person && receiver !== person) return false;
         }
         
-        // Direction filter
-        if (direction !== 'all' && op.type === 'payment') {
-            const sender = op.sender?.toLowerCase() || '';
-            const receiver = op.receiver?.toLowerCase() || '';
-            
-            const isSenderManager = managers.includes(sender);
-            const isReceiverManager = managers.includes(receiver);
-            
-            if (direction === 'manager_to_worker') {
-                if (!(isSenderManager && !isReceiverManager)) return false;
-            } else if (direction === 'worker_to_manager') {
-                if (!(!isSenderManager && isReceiverManager)) return false;
-            } else if (direction === 'manager_to_manager') {
-                if (!(isSenderManager && isReceiverManager)) return false;
-            }
-        }
-        
         // Search filter
         if (search) {
-            const description = op.description?.toLowerCase() || '';
+            const desc = op.description?.toLowerCase() || '';
             const sender = op.sender?.toLowerCase() || '';
             const receiver = op.receiver?.toLowerCase() || '';
-            if (!description.includes(search) && !sender.includes(search) && !receiver.includes(search)) return false;
+            if (!desc.includes(search) && !sender.includes(search) && !receiver.includes(search)) {
+                return false;
+            }
         }
         
         return true;
     });
     
-    // Update stats
     updateStats();
-    
-    // Reset to first page
     currentPage = 1;
-    
-    // Render table
     renderTable();
 }
 
 // Update statistics
 function updateStats() {
-    const totalOps = filteredOperations.length;
-    const totalAmount = filteredOperations.reduce((sum, op) => sum + (op.amount || 0), 0);
-    const totalPayments = filteredOperations.filter(op => op.type === 'payment').length;
-    const totalTransfers = filteredOperations.filter(op => op.type === 'transfer').length;
+    const totals = {
+        anas: 0, oussama: 0, amine: 0,
+        houssam: 0, zaki: 0, mohamed: 0
+    };
     
-    // Calculate per-person totals
-    let managersTotal = 0;
-    let workersTotal = 0;
-    let anasTotal = 0, oussamaTotal = 0, amineTotal = 0;
-    let houssamTotal = 0, zakiTotal = 0, mohamedTotal = 0;
-    
-    filteredOperations.forEach(op => {
+    filteredOps.forEach(op => {
         if (op.type === 'payment') {
-            const sender = op.sender?.toLowerCase() || '';
-            
-            // Add to person totals based on sender only for payments
-            if (sender === 'anas') anasTotal += op.amount;
-            if (sender === 'oussama') oussamaTotal += op.amount;
-            if (sender === 'amine') amineTotal += op.amount;
-            if (sender === 'houssam') houssamTotal += op.amount;
-            if (sender === 'zaki') zakiTotal += op.amount;
-            if (sender === 'mohamed') mohamedTotal += op.amount;
+            const sender = op.sender?.toLowerCase();
+            if (totals.hasOwnProperty(sender)) {
+                totals[sender] += op.amount;
+            }
         }
     });
     
-    // Calculate managers and workers totals
-    managersTotal = anasTotal + oussamaTotal + amineTotal;
-    workersTotal = houssamTotal + zakiTotal + mohamedTotal;
+    const managersTotal = totals.anas + totals.oussama + totals.amine;
+    const workersTotal = totals.houssam + totals.zaki + totals.mohamed;
     
-    const managersCount = filteredOperations.filter(op => 
-        op.type === 'payment' && managers.includes(op.sender?.toLowerCase())
-    ).length;
-    
-    const workersCount = filteredOperations.filter(op => 
-        op.type === 'payment' && workers.includes(op.sender?.toLowerCase())
-    ).length;
-    
-    // Update DOM
-    totalOpsSpan.textContent = totalOps;
-    totalAmountSpan.textContent = totalAmount.toFixed(2);
-    totalPaymentsSpan.textContent = totalPayments;
-    totalTransfersSpan.textContent = totalTransfers;
+    totalOpsSpan.textContent = filteredOps.length;
+    totalAmountSpan.textContent = filteredOps.reduce((s, o) => s + o.amount, 0).toFixed(2);
+    totalPaymentsSpan.textContent = filteredOps.filter(o => o.type === 'payment').length;
+    totalTransfersSpan.textContent = filteredOps.filter(o => o.type === 'transfer').length;
     
     managersTotalSpan.textContent = managersTotal.toFixed(2);
     workersTotalSpan.textContent = workersTotal.toFixed(2);
     
-    managersCountSpan.textContent = managersCount;
-    workersCountSpan.textContent = workersCount;
+    managersCountSpan.textContent = filteredOps.filter(o => 
+        o.type === 'payment' && managers.includes(o.sender?.toLowerCase())
+    ).length;
     
-    anasTotalSpan.textContent = anasTotal.toFixed(2);
-    oussamaTotalSpan.textContent = oussamaTotal.toFixed(2);
-    amineTotalSpan.textContent = amineTotal.toFixed(2);
-    houssamTotalSpan.textContent = houssamTotal.toFixed(2);
-    zakiTotalSpan.textContent = zakiTotal.toFixed(2);
-    mohamedTotalSpan.textContent = mohamedTotal.toFixed(2);
+    workersCountSpan.textContent = filteredOps.filter(o => 
+        o.type === 'payment' && workers.includes(o.sender?.toLowerCase())
+    ).length;
+    
+    anasTotalSpan.textContent = totals.anas.toFixed(2);
+    oussamaTotalSpan.textContent = totals.oussama.toFixed(2);
+    amineTotalSpan.textContent = totals.amine.toFixed(2);
+    houssamTotalSpan.textContent = totals.houssam.toFixed(2);
+    zakiTotalSpan.textContent = totals.zaki.toFixed(2);
+    mohamedTotalSpan.textContent = totals.mohamed.toFixed(2);
 }
 
-// Render table with pagination
+// Render table
 function renderTable() {
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    const pageItems = filteredOperations.slice(start, end);
+    const pageItems = filteredOps.slice(start, end);
     
-    if (filteredOperations.length === 0) {
+    if (filteredOps.length === 0) {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="8">
                     <div class="no-data-ops">
                         <div class="no-data-icon">📭</div>
-                        No operations found<br>
-                        <small>Try adjusting your filters</small>
+                        No operations
                     </div>
                 </td>
             </tr>
@@ -1099,134 +961,111 @@ function renderTable() {
     }
     
     let html = '';
-    
     pageItems.forEach(op => {
-        const senderRole = getPersonRoleClass(op.sender);
-        const receiverRole = getPersonRoleClass(op.receiver);
-        const typeClass = getTypeBadgeClass(op.status);
-        const typeText = getTypeDisplayText(op.status);
+        const typeInfo = getTypeInfo(op.status);
+        const senderClass = getPersonClass(op.sender);
+        const receiverClass = getPersonClass(op.receiver);
         
         html += `
             <tr>
-                <td><span class="type-badge ${typeClass}">${typeText}</span></td>
-                <td>
-                    <span class="ops-person-badge ${senderRole}">${op.sender || 'N/A'}</span>
-                </td>
+                <td><span class="type-badge ${typeInfo.class}">${typeInfo.text}</span></td>
+                <td><span class="ops-person-badge ${senderClass}">${op.sender || '-'}</span></td>
                 <td><span class="transfer-arrow">→</span></td>
-                <td>
-                    <span class="ops-person-badge ${receiverRole}">${op.receiver || 'N/A'}</span>
-                </td>
+                <td><span class="ops-person-badge ${receiverClass}">${op.receiver || '-'}</span></td>
                 <td class="amount-positive">${op.amount.toFixed(2)}</td>
-                <td class="description-cell" data-full="${op.description}">${op.description}</td>
+                <td class="description-cell" title="${op.description}">${op.description}</td>
                 <td>${op.date}</td>
                 <td>
-                    <button class="ops-delete-btn" onclick="deleteOperation('${op.id}', '${op.collection}')" title="Delete">🗑️</button>
+                    <button class="ops-delete-btn" onclick="deleteOp('${op.id}', '${op.collection}')">🗑️</button>
                 </td>
             </tr>
         `;
     });
     
     tableBody.innerHTML = html;
-    
-    // Render pagination
     renderPagination();
 }
 
 // Render pagination
 function renderPagination() {
-    const totalPages = Math.ceil(filteredOperations.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (totalPages <= 1) {
         paginationDiv.innerHTML = '';
         return;
     }
     
     let pages = '';
-    
-    // Previous button
     pages += `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
     
-    // Page numbers
     for (let i = 1; i <= totalPages; i++) {
-        if (
-            i === 1 || 
-            i === totalPages || 
-            (i >= currentPage - 2 && i <= currentPage + 2)
-        ) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
             pages += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
         } else if (i === currentPage - 3 || i === currentPage + 3) {
             pages += `<span class="page-btn" style="background:transparent;">...</span>`;
         }
     }
     
-    // Next button
     pages += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
-    
     paginationDiv.innerHTML = pages;
 }
 
 // Change page
 function changePage(page) {
-    const totalPages = Math.ceil(filteredOperations.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (page < 1 || page > totalPages) return;
     currentPage = page;
     renderTable();
-    
-    // Scroll to top of table
-    document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Delete operation
-async function deleteOperation(id, collection) {
-    if (!confirm('Are you sure you want to delete this operation?')) return;
+async function deleteOp(id, collection) {
+    if (!confirm('Delete this operation?')) return;
     
     try {
         await db.collection(collection).doc(id).delete();
-        console.log('Operation deleted');
-        // Reload all operations
-        await loadAllOperations();
+        await loadData();
     } catch (error) {
-        console.error("Error deleting operation:", error);
-        alert("Failed to delete operation");
+        console.error("Delete error:", error);
+        alert("Delete failed");
     }
 }
 
 // Export to CSV
 function exportToCSV() {
-    if (filteredOperations.length === 0) {
-        alert('No operations to export');
+    if (filteredOps.length === 0) {
+        alert('No data to export');
         return;
     }
     
-    // Create CSV content
     let csv = 'Type,Sender,Receiver,Amount,Description,Date,Status\n';
-    
-    filteredOperations.forEach(op => {
-        const type = op.type === 'payment' ? 'Payment' : 'Transfer';
-        const sender = op.sender || 'N/A';
-        const receiver = op.receiver || 'N/A';
-        const amount = op.amount.toFixed(2);
-        const description = op.description.replace(/,/g, ';'); // Replace commas
-        const date = op.date;
-        const status = op.status || 'paid';
-        
-        csv += `${type},${sender},${receiver},${amount},${description},${date},${status}\n`;
+    filteredOps.forEach(op => {
+        csv += `${op.type},${op.sender},${op.receiver},${op.amount},${op.description.replace(/,/g, ';')},${op.date},${op.status}\n`;
     });
     
-    // Download CSV
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Arabic
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', `operations_${new Date().toLocaleDateString()}.csv`);
-    document.body.appendChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.download = `operations_${new Date().toISOString().slice(0,10)}.csv`;
     link.click();
-    document.body.removeChild(link);
+}
+
+// Show error
+function showError(msg) {
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="8">
+                <div class="no-data-ops">
+                    <div class="no-data-icon">❌</div>
+                    ${msg}
+                </div>
+            </td>
+        </tr>
+    `;
 }
 
 // Event listeners
 typeFilter.addEventListener('change', applyFilters);
 personFilter.addEventListener('change', applyFilters);
-directionFilter.addEventListener('change', applyFilters);
 searchInput.addEventListener('input', applyFilters);
 itemsPerPageSelect.addEventListener('change', () => {
     itemsPerPage = parseInt(itemsPerPageSelect.value);
@@ -1237,16 +1076,16 @@ itemsPerPageSelect.addEventListener('change', () => {
 clearFiltersBtn.addEventListener('click', () => {
     typeFilter.value = 'all';
     personFilter.value = 'all';
-    directionFilter.value = 'all';
     searchInput.value = '';
     applyFilters();
 });
 
-// Initial load
-loadAllOperations();
+// Initialize
+loadData();
+setupListener();
 
 // Make functions global
-window.deleteOperation = deleteOperation;
+window.deleteOp = deleteOp;
 window.changePage = changePage;
 window.exportToCSV = exportToCSV;
 </script>
