@@ -632,27 +632,53 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <script>
-// ========== التحقق من المصادقة ==========
-// التحقق مما إذا كان المستخدم قد سجل الدخول عبر صفحة login.html
-function checkAuthentication() {
-    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
-    const loginTime = sessionStorage.getItem('loginTime');
-    const currentTime = new Date().getTime();
-    
-    // التحقق من وجود جلسة صالحة (أقل من 8 ساعات)
-    if (isAuthenticated !== 'true' || !loginTime || (currentTime - parseInt(loginTime)) > 8 * 60 * 60 * 1000) {
-        // إذا لم يكن هناك جلسة صالحة، إعادة التوجيه إلى صفحة تسجيل الدخول
-        window.location.href = 'login.html';
-        return false;
+// ========== نظام المصادقة ==========
+(function() {
+    // دالة للتحقق من المصادقة
+    function checkAuthentication() {
+        // محاولة القراءة من sessionStorage أولاً
+        let isAuthenticated = sessionStorage.getItem('delivery_auth');
+        let authTime = sessionStorage.getItem('delivery_auth_time');
+        
+        // إذا لم تكن موجودة في sessionStorage، جرب localStorage كنسخة احتياطية
+        if (!isAuthenticated) {
+            isAuthenticated = localStorage.getItem('delivery_auth');
+            authTime = localStorage.getItem('delivery_auth_time');
+            
+            // إذا وجدت في localStorage، انسخها إلى sessionStorage
+            if (isAuthenticated) {
+                sessionStorage.setItem('delivery_auth', isAuthenticated);
+                sessionStorage.setItem('delivery_auth_time', authTime);
+            }
+        }
+        
+        // التحقق من صحة المصادقة
+        const now = Date.now();
+        const eightHours = 8 * 60 * 60 * 1000; // 8 ساعات
+        
+        if (isAuthenticated === 'true' && authTime && (now - parseInt(authTime)) < eightHours) {
+            // جلسة صالحة
+            return true;
+        } else {
+            // جلسة منتهية أو غير موجودة
+            // تنظيف أي بيانات قديمة
+            sessionStorage.removeItem('delivery_auth');
+            sessionStorage.removeItem('delivery_auth_time');
+            localStorage.removeItem('delivery_auth');
+            localStorage.removeItem('delivery_auth_time');
+            
+            // إعادة التوجيه إلى صفحة تسجيل الدخول
+            window.location.replace('login.html');
+            return false;
+        }
     }
-    return true;
-}
-
-// تنفيذ التحقق فوراً
-if (!checkAuthentication()) {
-    // إيقاف تنفيذ باقي الكود إذا لم يكن المستخدم مصادقاً
-    throw new Error('Authentication required');
-}
+    
+    // تنفيذ التحقق
+    if (!checkAuthentication()) {
+        // إيقاف تنفيذ باقي الكود
+        throw new Error('Authentication required');
+    }
+})();
 
 // ========== تهيئة Firebase ==========
 const firebaseConfig = {
@@ -661,9 +687,11 @@ const firebaseConfig = {
     projectId: "deliverymarrakech",
     storageBucket: "deliverymarrakech.firebasestorage.app",
     messagingSenderId: "543072772322",
-    appId: "1:543072772322:web:468d0c047e06c86bde7ebb"
+    appId: "1:543072772322:web:468d0c047e06c86bde7ebb",
+    measurementId: "G-YMXBJFJ9N8"
 };
 
+// تهيئة Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
