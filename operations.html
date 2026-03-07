@@ -517,20 +517,20 @@ body {
                 <circle cx="12" cy="15" r="2"/>
                 <path d="M7 12h10v2H7z"/>
             </svg>
-            نظام تحويلات عمال التوصيل
+            Delivery Workers Transfer System
         </h1>
         <div style="display: flex; gap: 15px;">
             <button class="export-btn" onclick="exportToCSV()">
                 <svg viewBox="0 0 24 24">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                 </svg>
-                تصدير Excel
+                Export Excel
             </button>
             <button class="back-btn" onclick="window.location.href='admin.html'">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
-                العودة للإدارة
+                Back to Admin
             </button>
         </div>
     </div>
@@ -538,23 +538,23 @@ body {
     <!-- Stats Cards -->
     <div class="stats-container" id="statsContainer">
         <div class="stat-card">
-            <div class="stat-label">📊 إجمالي العمليات</div>
+            <div class="stat-label">📊 Total Operations</div>
             <div class="stat-value" id="totalOps">0</div>
             <div class="stat-detail">
-                <span>مدفوعات: <span id="totalPayments">0</span></span>
-                <span>تحويلات: <span id="totalTransfers">0</span></span>
+                <span>Payments: <span id="totalPayments">0</span></span>
+                <span>Transfers: <span id="totalTransfers">0</span></span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">💰 إجمالي المبالغ</div>
-            <div class="stat-value" id="totalAmount">0.00 <span class="stat-unit">درهم</span></div>
+            <div class="stat-label">💰 Total Amount</div>
+            <div class="stat-value" id="totalAmount">0.00 <span class="stat-unit">MAD</span></div>
             <div class="stat-detail">
-                <span>المدراء: <span id="managersTotal">0.00</span></span>
-                <span>العمال: <span id="workersTotal">0.00</span></span>
+                <span>Managers: <span id="managersTotal">0.00</span></span>
+                <span>Workers: <span id="workersTotal">0.00</span></span>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">👥 المدراء (Anas, Oussama, Amine)</div>
+            <div class="stat-label">👥 Managers (Anas, Oussama, Amine)</div>
             <div class="stat-value" id="managersCount">0</div>
             <div class="stat-detail" id="managersDetail">
                 <span>Anas: <span id="anasTotal">0</span></span>
@@ -563,7 +563,7 @@ body {
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">👷 العمال (Houssam, Zaki, Mohamed)</div>
+            <div class="stat-label">👷 Workers (Houssam, Zaki, Mohamed)</div>
             <div class="stat-value" id="workersCount">0</div>
             <div class="stat-detail" id="workersDetail">
                 <span>Houssam: <span id="houssamTotal">0</span></span>
@@ -575,45 +575,45 @@ body {
 
     <!-- Filters -->
     <div class="filters-section">
-        <span class="filter-label">تصفية حسب:</span>
+        <span class="filter-label">Filter by:</span>
         
         <select class="filter-select" id="typeFilter">
-            <option value="all">جميع العمليات</option>
-            <option value="payment">المدفوعات فقط</option>
-            <option value="transfer">التحويلات فقط</option>
+            <option value="all">All Operations</option>
+            <option value="payment">Payments Only</option>
+            <option value="transfer">Transfers Only</option>
         </select>
         
         <select class="filter-select" id="personFilter">
-            <option value="all">جميع الأشخاص</option>
-            <optgroup label="المدراء">
-                <option value="anas">Anas (مدير)</option>
-                <option value="oussama">Oussama (مدير)</option>
-                <option value="amine">Amine (مدير)</option>
+            <option value="all">All Persons</option>
+            <optgroup label="Managers">
+                <option value="anas">Anas (Manager)</option>
+                <option value="oussama">Oussama (Manager)</option>
+                <option value="amine">Amine (Manager)</option>
             </optgroup>
-            <optgroup label="العمال">
-                <option value="houssam">Houssam (عامل)</option>
-                <option value="zaki">Zaki (عامل)</option>
-                <option value="mohamed">Mohamed (عامل)</option>
+            <optgroup label="Workers">
+                <option value="houssam">Houssam (Worker)</option>
+                <option value="zaki">Zaki (Worker)</option>
+                <option value="mohamed">Mohamed (Worker)</option>
             </optgroup>
         </select>
         
         <select class="filter-select" id="directionFilter">
-            <option value="all">جميع الاتجاهات</option>
-            <option value="manager_to_worker">مدير → عامل</option>
-            <option value="worker_to_manager">عامل → مدير</option>
-            <option value="manager_to_manager">مدير → مدير</option>
+            <option value="all">All Directions</option>
+            <option value="manager_to_worker">Manager → Worker</option>
+            <option value="worker_to_manager">Worker → Manager</option>
+            <option value="manager_to_manager">Manager → Manager</option>
         </select>
         
-        <input type="text" class="search-box" id="searchInput" placeholder="🔍 بحث في الوصف أو الأسماء...">
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search in description or names...">
         
         <select class="items-per-page" id="itemsPerPage">
-            <option value="15">15 لكل صفحة</option>
-            <option value="25">25 لكل صفحة</option>
-            <option value="50">50 لكل صفحة</option>
-            <option value="100">100 لكل صفحة</option>
+            <option value="15">15 per page</option>
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+            <option value="100">100 per page</option>
         </select>
         
-        <button class="clear-filters" id="clearFilters">مسح التصفية</button>
+        <button class="clear-filters" id="clearFilters">Clear Filters</button>
     </div>
 
     <!-- Operations Table -->
@@ -621,14 +621,14 @@ body {
         <table class="operations-table" id="operationsTable">
             <thead>
                 <tr>
-                    <th>النوع</th>
-                    <th>المرسل</th>
+                    <th>Type</th>
+                    <th>Sender</th>
                     <th></th>
-                    <th>المستلم</th>
-                    <th>المبلغ (درهم)</th>
-                    <th>الوصف</th>
-                    <th>التاريخ والوقت</th>
-                    <th>الإجراءات</th>
+                    <th>Receiver</th>
+                    <th>Amount (MAD)</th>
+                    <th>Description</th>
+                    <th>Date & Time</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -636,7 +636,7 @@ body {
                     <td colspan="8">
                         <div class="loading">
                             <div class="loading-spinner"></div>
-                            جاري تحميل العمليات...
+                            Loading operations...
                         </div>
                     </td>
                 </tr>
@@ -718,7 +718,7 @@ function formatDate(timestamp) {
         date = new Date(timestamp);
     }
     
-    return date.toLocaleString('ar-MA', { 
+    return date.toLocaleString('en-US', { 
         year: 'numeric',
         month: '2-digit', 
         day: '2-digit',
@@ -771,21 +771,18 @@ async function loadAllOperations() {
             });
         });
         
-        // Process transfers
+        // Process transfers - MODIFIED: Now using name1 as sender and name2 as receiver
         transfersSnapshot.forEach(doc => {
             const data = doc.data();
-            const member = data.member;
             
-            // Determine sender and receiver based on the system logic
-            // For wallet transfers, the money is being transferred TO the member
             allOperations.push({
                 id: doc.id,
                 type: 'transfer',
                 collection: 'wallet_entries',
-                sender: 'System',
-                receiver: member,
+                sender: data.name1 || 'System', // The person who sent the money (from choose name)
+                receiver: data.name2 || data.member || 'Unknown', // The person who received the money (from choose second name)
                 amount: data.amount || 0,
-                description: `تحويل إلى محفظة ${member}`,
+                description: data.description || `Transfer to wallet`, // Description from index.html
                 timestamp: data.timestamp,
                 date: formatDate(data.timestamp),
                 rawData: data
@@ -809,7 +806,7 @@ async function loadAllOperations() {
                 <td colspan="8">
                     <div class="no-data-ops">
                         <div class="no-data-icon">❌</div>
-                        خطأ في تحميل العمليات<br>
+                        Error loading operations<br>
                         <small>${error.message}</small>
                     </div>
                 </td>
@@ -833,11 +830,7 @@ function applyFilters() {
         if (person !== 'all') {
             const sender = op.sender?.toLowerCase() || '';
             const receiver = op.receiver?.toLowerCase() || '';
-            if (op.type === 'payment') {
-                if (sender !== person && receiver !== person) return false;
-            } else {
-                if (op.receiver?.toLowerCase() !== person) return false;
-            }
+            if (sender !== person && receiver !== person) return false;
         }
         
         // Direction filter
@@ -950,8 +943,8 @@ function renderTable() {
                 <td colspan="8">
                     <div class="no-data-ops">
                         <div class="no-data-icon">📭</div>
-                        لا توجد عمليات<br>
-                        <small>حاول تعديل معايير التصفية</small>
+                        No operations found<br>
+                        <small>Try adjusting your filters</small>
                     </div>
                 </td>
             </tr>
@@ -970,7 +963,7 @@ function renderTable() {
             
             html += `
                 <tr>
-                    <td><span class="type-badge type-payment">💳 دفعة</span></td>
+                    <td><span class="type-badge type-payment">💳 Payment</span></td>
                     <td>
                         <span class="ops-person-badge ${senderRole}">${op.sender || 'N/A'}</span>
                     </td>
@@ -982,19 +975,20 @@ function renderTable() {
                     <td class="description-cell" data-full="${op.description}">${op.description}</td>
                     <td>${op.date}</td>
                     <td>
-                        <button class="ops-delete-btn" onclick="deleteOperation('${op.id}', '${op.collection}')" title="حذف">🗑️</button>
+                        <button class="ops-delete-btn" onclick="deleteOperation('${op.id}', '${op.collection}')" title="Delete">🗑️</button>
                     </td>
                 </tr>
             `;
         } else {
-            // Transfer row
+            // Transfer row - MODIFIED: Show sender and receiver correctly
+            const senderRole = getPersonRoleClass(op.sender);
             const receiverRole = getPersonRoleClass(op.receiver);
             
             html += `
                 <tr>
-                    <td><span class="type-badge type-transfer">📦 تحويل</span></td>
+                    <td><span class="type-badge type-transfer">📦 Transfer</span></td>
                     <td>
-                        <span class="ops-person-badge person-worker">النظام</span>
+                        <span class="ops-person-badge ${senderRole}">${op.sender || 'N/A'}</span>
                     </td>
                     <td><span class="transfer-arrow">→</span></td>
                     <td>
@@ -1004,7 +998,7 @@ function renderTable() {
                     <td class="description-cell" data-full="${op.description}">${op.description}</td>
                     <td>${op.date}</td>
                     <td>
-                        <button class="ops-delete-btn" onclick="deleteOperation('${op.id}', '${op.collection}')" title="حذف">🗑️</button>
+                        <button class="ops-delete-btn" onclick="deleteOperation('${op.id}', '${op.collection}')" title="Delete">🗑️</button>
                     </td>
                 </tr>
             `;
@@ -1062,7 +1056,7 @@ function changePage(page) {
 
 // Delete operation
 async function deleteOperation(id, collection) {
-    if (!confirm('هل أنت متأكد من حذف هذه العملية؟')) return;
+    if (!confirm('Are you sure you want to delete this operation?')) return;
     
     try {
         await db.collection(collection).doc(id).delete();
@@ -1071,26 +1065,26 @@ async function deleteOperation(id, collection) {
         await loadAllOperations();
     } catch (error) {
         console.error("Error deleting operation:", error);
-        alert("فشل حذف العملية");
+        alert("Failed to delete operation");
     }
 }
 
 // Export to CSV
 function exportToCSV() {
     if (filteredOperations.length === 0) {
-        alert('لا توجد عمليات للتصدير');
+        alert('No operations to export');
         return;
     }
     
     // Create CSV content
-    let csv = 'النوع,المرسل,المستلم,المبلغ,الوصف,التاريخ\n';
+    let csv = 'Type,Sender,Receiver,Amount,Description,Date\n';
     
     filteredOperations.forEach(op => {
-        const type = op.type === 'payment' ? 'دفعة' : 'تحويل';
+        const type = op.type === 'payment' ? 'Payment' : 'Transfer';
         const sender = op.sender || 'N/A';
         const receiver = op.receiver || 'N/A';
         const amount = op.amount.toFixed(2);
-        const description = op.description.replace(/,/g, '،'); // Replace commas
+        const description = op.description.replace(/,/g, ';'); // Replace commas
         const date = op.date;
         
         csv += `${type},${sender},${receiver},${amount},${description},${date}\n`;
@@ -1101,7 +1095,7 @@ function exportToCSV() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.href = url;
-    link.setAttribute('download', `تحويلات_${new Date().toLocaleDateString()}.csv`);
+    link.setAttribute('download', `operations_${new Date().toLocaleDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
