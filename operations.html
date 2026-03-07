@@ -313,17 +313,23 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: rgba(255,255,255,0.9);
+    cursor: help;
+    position: relative;
 }
 
 .description-cell:hover {
     overflow: visible;
     white-space: normal;
     word-wrap: break-word;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.9);
     border-radius: 8px;
     padding: 8px;
-    position: relative;
-    z-index: 100;
+    position: absolute;
+    z-index: 1000;
+    max-width: 300px;
+    transform: translateY(-100%);
+    margin-top: -10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 /* No Data */
@@ -655,7 +661,7 @@ let itemsPerPage = 15;
 const managers = ['anas', 'oussama', 'amine'];
 const workers = ['houssam', 'zaki', 'mohamed'];
 
-// Cache for payment data
+// Cache for payment data - نستخدم هذا للحفاظ على البيانات الأصلية
 const paymentCache = new Map();
 
 // DOM elements
@@ -714,34 +720,36 @@ function getTypeInfo(status) {
     }
 }
 
-// Load data
+// Load all data
 async function loadData() {
     try {
-        // Load payments first to build cache
+        // أولاً: تحميل جميع الدفعات (payments) وبناء الكاش
         const paymentsSnap = await db.collection("payments")
             .orderBy("time", "desc")
             .get();
         
-        // Build payment cache
+        // بناء الكاش مع جميع البيانات الأصلية
         paymentsSnap.forEach(doc => {
             const data = doc.data();
             paymentCache.set(doc.id, {
                 sender: data.name1,
                 receiver: data.name2,
                 description: data.description || '-',
-                amount: parseFloat(data.price) || 0
+                amount: parseFloat(data.price) || 0,
+                timestamp: data.time,
+                date: formatDate(data.time)
             });
         });
         
-        // Load wallet entries
+        // ثانياً: تحميل جميع التحويلات (wallet_entries)
         const walletSnap = await db.collection("wallet_entries")
             .orderBy("timestamp", "desc")
             .get();
         
-        // Combine operations
+        // دمج جميع العمليات
         allOperations = [];
         
-        // Add payments
+        // إضافة الدفعات (payments)
         paymentsSnap.forEach(doc => {
             const data = doc.data();
             allOperations.push({
@@ -751,99 +759,115 @@ async function loadData() {
                 sender: data.name1,
                 receiver: data.name2,
                 amount: parseFloat(data.price) || 0,
-                description: data.description || '-',
+                description: data.description || '-', // الوصف الأصلي من index.html
                 timestamp: data.time,
                 date: formatDate(data.time),
-                status: 'atwork'
+                status: 'atwork' // الحالة الافتراضية للدفعات
             });
         });
         
-        // Add wallet entries
+        // إضافة التحويلات (wallet_entries) مع الحفاظ على الوصف الأصلي
         walletSnap.forEach(doc => {
             const data = doc.data();
             
-            // Try to get original payment data
-            let sender = data.name1;
-            let receiver = data.name2 || data.member;
-            let description = data.description;
-            
+            // البحث عن البيانات الأصلية إذا كان هناك originalPaymentId
+            let originalData = null;
             if (data.originalPaymentId && paymentCache.has(data.originalPaymentId)) {
-                const original = paymentCache.get(data.originalPaymentId);
-                sender = original.sender;
-                receiver = original.receiver;
-                description = original.description;
+                originalData = paymentCache.get(data.originalPaymentId);
             }
+            
+            // استخدام البيانات الأصلية إذا وجدت، وإلا استخدام البيانات الجديدة
+            const sender = originalData ? originalData.sender : (data.name1 || 'System');
+            const receiver = originalData ? originalData.receiver : (data.name2 || data.member || 'Unknown');
+            const description = originalData ? originalData.description : (data.description || 'Transfer');
             
             allOperations.push({
                 id: doc.id,
                 type: 'transfer',
                 collection: 'wallet_entries',
-                sender: sender || 'System',
-                receiver: receiver || 'Unknown',
+                sender: sender,
+                receiver: receiver,
                 amount: data.amount || 0,
-                description: description || 'Transfer',
+                description: description, // الوصف الأصلي من الدفعة
                 timestamp: data.timestamp,
                 date: formatDate(data.timestamp),
-                status: data.status || 'paid'
+                status: data.status || 'paid',
+                originalPaymentId: data.originalPaymentId // حفظ المرجع
             });
         });
         
-        // Sort by timestamp
+        // ترتيب العمليات حسب الوقت (الأحدث أولاً)
         allOperations.sort((a, b) => {
             const ta = a.timestamp?.seconds || 0;
             const tb = b.timestamp?.seconds || 0;
             return tb - ta;
         });
         
+        // تطبيق الفلاتر
         applyFilters();
         
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error loading data:", error);
         showError(error.message);
     }
 }
 
-// Set up real-time listener
+// مستمع للتحديثات المباشرة
 function setupListener() {
     db.collection("wallet_entries").onSnapshot((snapshot) => {
         snapshot.docChanges().forEach((change) => {
             const docId = change.doc.id;
             const newData = change.doc.data();
             
+            // البحث عن العملية في المصفوفة
             const index = allOperations.findIndex(op => op.id === docId && op.collection === 'wallet_entries');
             
             if (index !== -1) {
-                // Update existing entry - ONLY change the status
+                // تحديث عملية موجودة
                 if (change.type === 'modified') {
-                    allOperations[index].status = newData.status || allOperations[index].status;
+                    // البحث عن البيانات الأصلية
+                    let originalData = null;
+                    if (allOperations[index].originalPaymentId && paymentCache.has(allOperations[index].originalPaymentId)) {
+                        originalData = paymentCache.get(allOperations[index].originalPaymentId);
+                    }
+                    
+                    // تحديث الحالة فقط، مع الحفاظ على جميع البيانات الأخرى
+                    allOperations[index] = {
+                        ...allOperations[index],
+                        status: newData.status || allOperations[index].status,
+                        // التأكد من بقاء البيانات الأصلية
+                        sender: originalData ? originalData.sender : allOperations[index].sender,
+                        receiver: originalData ? originalData.receiver : allOperations[index].receiver,
+                        description: originalData ? originalData.description : allOperations[index].description,
+                        amount: allOperations[index].amount // الحفاظ على المبلغ الأصلي
+                    };
                 }
             } else if (change.type === 'added') {
-                // Add new entry with correct data
-                let sender = newData.name1;
-                let receiver = newData.name2 || newData.member;
-                let description = newData.description;
-                
+                // إضافة عملية جديدة
+                let originalData = null;
                 if (newData.originalPaymentId && paymentCache.has(newData.originalPaymentId)) {
-                    const original = paymentCache.get(newData.originalPaymentId);
-                    sender = original.sender;
-                    receiver = original.receiver;
-                    description = original.description;
+                    originalData = paymentCache.get(newData.originalPaymentId);
                 }
+                
+                const sender = originalData ? originalData.sender : (newData.name1 || 'System');
+                const receiver = originalData ? originalData.receiver : (newData.name2 || newData.member || 'Unknown');
+                const description = originalData ? originalData.description : (newData.description || 'Transfer');
                 
                 allOperations.push({
                     id: docId,
                     type: 'transfer',
                     collection: 'wallet_entries',
-                    sender: sender || 'System',
-                    receiver: receiver || 'Unknown',
+                    sender: sender,
+                    receiver: receiver,
                     amount: newData.amount || 0,
-                    description: description || 'Transfer',
+                    description: description, // الوصف الأصلي
                     timestamp: newData.timestamp,
                     date: formatDate(newData.timestamp),
-                    status: newData.status || 'paid'
+                    status: newData.status || 'paid',
+                    originalPaymentId: newData.originalPaymentId
                 });
                 
-                // Re-sort
+                // إعادة الترتيب
                 allOperations.sort((a, b) => {
                     const ta = a.timestamp?.seconds || 0;
                     const tb = b.timestamp?.seconds || 0;
@@ -851,19 +875,22 @@ function setupListener() {
                 });
             }
             
+            // إعادة تطبيق الفلاتر
             applyFilters();
         });
+    }, (error) => {
+        console.error("Listener error:", error);
     });
 }
 
-// Apply filters
+// تطبيق الفلاتر
 function applyFilters() {
     const type = typeFilter.value;
     const person = personFilter.value.toLowerCase();
     const search = searchInput.value.toLowerCase();
     
     filteredOps = allOperations.filter(op => {
-        // Type filter
+        // فلتر النوع
         if (type !== 'all') {
             if (type === 'atwork' && op.status !== 'atwork') return false;
             if (type === 'paid' && op.status !== 'paid') return false;
@@ -871,14 +898,14 @@ function applyFilters() {
             if (type === 'transfer' && op.type !== 'transfer') return false;
         }
         
-        // Person filter
+        // فلتر الشخص
         if (person !== 'all') {
             const sender = op.sender?.toLowerCase() || '';
             const receiver = op.receiver?.toLowerCase() || '';
             if (sender !== person && receiver !== person) return false;
         }
         
-        // Search filter
+        // فلتر البحث
         if (search) {
             const desc = op.description?.toLowerCase() || '';
             const sender = op.sender?.toLowerCase() || '';
@@ -896,7 +923,7 @@ function applyFilters() {
     renderTable();
 }
 
-// Update statistics
+// تحديث الإحصائيات
 function updateStats() {
     const totals = {
         anas: 0, oussama: 0, amine: 0,
@@ -939,7 +966,7 @@ function updateStats() {
     mohamedTotalSpan.textContent = totals.mohamed.toFixed(2);
 }
 
-// Render table
+// عرض الجدول
 function renderTable() {
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
@@ -986,7 +1013,7 @@ function renderTable() {
     renderPagination();
 }
 
-// Render pagination
+// عرض أرقام الصفحات
 function renderPagination() {
     const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (totalPages <= 1) {
@@ -1009,28 +1036,29 @@ function renderPagination() {
     paginationDiv.innerHTML = pages;
 }
 
-// Change page
+// تغيير الصفحة
 function changePage(page) {
     const totalPages = Math.ceil(filteredOps.length / itemsPerPage);
     if (page < 1 || page > totalPages) return;
     currentPage = page;
     renderTable();
+    document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Delete operation
+// حذف عملية
 async function deleteOp(id, collection) {
     if (!confirm('Delete this operation?')) return;
     
     try {
         await db.collection(collection).doc(id).delete();
-        await loadData();
+        await loadData(); // إعادة تحميل البيانات بعد الحذف
     } catch (error) {
         console.error("Delete error:", error);
         alert("Delete failed");
     }
 }
 
-// Export to CSV
+// تصدير إلى CSV
 function exportToCSV() {
     if (filteredOps.length === 0) {
         alert('No data to export');
@@ -1049,7 +1077,7 @@ function exportToCSV() {
     link.click();
 }
 
-// Show error
+// عرض الخطأ
 function showError(msg) {
     tableBody.innerHTML = `
         <tr>
